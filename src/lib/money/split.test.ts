@@ -148,12 +148,25 @@ describe("allocateShares", () => {
     });
   });
 
-  it.each([0, -100, 1.5, Number.NaN])("rejects amount %s", (amount) => {
-    const r = allocateShares(amount, "PHP", "EQUAL", [
-      { userId: "a", weight: 1 },
+  it("rejects weights that don't fit the database column", () => {
+    const r = allocateShares(100, "PHP", "SHARES", [
+      { userId: "a", weight: 2 ** 31 },
     ]);
-    expect(r).toEqual({ ok: false, error: { code: "INVALID_AMOUNT" } });
+    expect(r).toEqual({
+      ok: false,
+      error: { code: "INVALID_WEIGHT", userId: "a" },
+    });
   });
+
+  it.each([0, -100, 1.5, Number.NaN, 2 ** 31])(
+    "rejects amount %s",
+    (amount) => {
+      const r = allocateShares(amount, "PHP", "EQUAL", [
+        { userId: "a", weight: 1 },
+      ]);
+      expect(r).toEqual({ ok: false, error: { code: "INVALID_AMOUNT" } });
+    },
+  );
 
   it("property: shares always add up to the amount and differ from the exact ratio by < 1 unit", () => {
     const modes: SplitMode[] = ["EQUAL", "SHARES"];

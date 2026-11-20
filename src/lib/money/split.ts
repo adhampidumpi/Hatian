@@ -1,4 +1,4 @@
-import { getCurrency } from "./currency";
+import { getCurrency, isValidMinor } from "./currency";
 
 export type SplitMode = "EQUAL" | "SHARES" | "PERCENT" | "EXACT";
 
@@ -37,8 +37,9 @@ export const FULL_PERCENT_BP = 10_000;
  * Turn an expense amount and per-person inputs into exact per-person shares.
  *
  * Shares always add up to `amount`. Leftover minor units from rounding go to
- * the earliest participants in `inputs` order (largest-remainder method via
- * dinero.js `allocate`), so the caller controls who gets the extra centavo.
+ * the largest fractional remainders (ties: earliest in `inputs` order), so
+ * the caller's ordering decides who gets the extra centavo in an equal split.
+ * Amounts and weights must fit the database's integer columns (MAX_MINOR).
  */
 export function allocateShares(
   amount: number,
@@ -46,11 +47,11 @@ export function allocateShares(
   mode: SplitMode,
   inputs: SplitInput[],
 ): SplitResult {
-  if (!Number.isSafeInteger(amount) || amount <= 0) {
+  if (!isValidMinor(amount) || amount === 0) {
     return fail({ code: "INVALID_AMOUNT" });
   }
   for (const input of inputs) {
-    if (!Number.isSafeInteger(input.weight) || input.weight < 0) {
+    if (!isValidMinor(input.weight)) {
       return fail({ code: "INVALID_WEIGHT", userId: input.userId });
     }
     if (mode === "EQUAL" && input.weight > 1) {
