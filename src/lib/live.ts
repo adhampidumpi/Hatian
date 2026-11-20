@@ -16,6 +16,8 @@ export type LiveEvent =
       actorUserId: string;
       memberId: string;
       name: string;
+      colorIndex: number;
+      groupName: string;
       /** What they're doing; null means they stopped. */
       activity: "adding-expense" | "editing-expense" | null;
       /** Epoch ms after which to forget it if no heartbeat arrives. */

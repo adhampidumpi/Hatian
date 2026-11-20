@@ -49,6 +49,8 @@ export const liveRouter = router({
         actorUserId: ctx.user.id,
         memberId: me.id,
         name: me.name,
+        colorIndex: me.colorIndex,
+        groupName: me.group.name,
         activity: input.activity,
         until: Date.now() + PRESENCE_TTL_MS,
       });

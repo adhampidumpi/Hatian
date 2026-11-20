@@ -10,6 +10,8 @@ import {
   activityFilterLabels,
   type ActivityFilter,
 } from "@/lib/validation/activity";
+import { LiveBadge } from "@/features/live/live-badge";
+import { PresenceLine } from "@/features/live/presence-line";
 import { ActivityItem } from "./activity-item";
 import { useActivity, type ActivityEntry } from "./use-activity";
 
@@ -21,28 +23,32 @@ export function ActivityFeed({ groupId }: { groupId?: string }) {
 
   return (
     <div className="flex max-w-2xl flex-col gap-4">
-      <div
-        role="group"
-        aria-label="Filter activity"
-        className="flex flex-wrap gap-2"
-      >
-        {ACTIVITY_FILTERS.map((f) => (
-          <button
-            key={f}
-            type="button"
-            aria-pressed={f === filter}
-            onClick={() => setFilter(f)}
-            className={cn(
-              "h-9 rounded-full border px-3.5 text-[14px] font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink pointer-coarse:h-11",
-              f === filter
-                ? "border-ink bg-ink text-paper"
-                : "border-line-strong bg-card text-ink",
-            )}
-          >
-            {activityFilterLabels[f]}
-          </button>
-        ))}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div
+          role="group"
+          aria-label="Filter activity"
+          className="flex flex-wrap gap-2"
+        >
+          {ACTIVITY_FILTERS.map((f) => (
+            <button
+              key={f}
+              type="button"
+              aria-pressed={f === filter}
+              onClick={() => setFilter(f)}
+              className={cn(
+                "h-9 rounded-full border px-3.5 text-[14px] font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink pointer-coarse:h-11",
+                f === filter
+                  ? "border-ink bg-ink text-paper"
+                  : "border-line-strong bg-card text-ink",
+              )}
+            >
+              {activityFilterLabels[f]}
+            </button>
+          ))}
+        </div>
+        <LiveBadge />
       </div>
+      {!groupId && <PresenceLine />}
 
       {feed.isLoading ? (
         <FeedSkeleton />

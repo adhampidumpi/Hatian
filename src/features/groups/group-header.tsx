@@ -6,6 +6,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { formatDateRange } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import { useShareInvite } from "@/features/invites/use-share-invite";
+import { PresenceLine } from "@/features/live/presence-line";
 import { GroupBalance } from "./group-balance";
 import { GroupTabs } from "./group-tabs";
 import { AvatarStack } from "./member-avatar";
@@ -127,6 +128,7 @@ export function GroupHeader({ groupId }: { groupId: string }) {
       </div>
 
       <GroupTabs groupId={group.id} />
+      <PresenceLine groupId={group.id} />
     </div>
   );
 }

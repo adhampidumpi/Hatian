@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { PickerSheet } from "@/components/picker-sheet";
 import { Button } from "@/components/ui/button";
 import { MemberAvatar } from "@/features/groups/member-avatar";
+import { useBroadcastPresence } from "@/features/live/use-broadcast-presence";
 import { memberLabel, type Group } from "@/features/groups/use-group";
 import { categories } from "@/lib/categories";
 import { formatDay, todayIso } from "@/lib/dates";
@@ -42,6 +43,10 @@ export function ExpenseEditor({
   const router = useRouter();
   const refresh = useRefreshData();
   const backHref = `/groups/${group.id}`;
+  useBroadcastPresence(
+    group.id,
+    expense ? "editing-expense" : "adding-expense",
+  );
 
   // Active members, plus anyone already on this expense who has since left.
   const members: EditorMember[] = useMemo(() => {

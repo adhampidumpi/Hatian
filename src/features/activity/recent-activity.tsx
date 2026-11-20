@@ -2,6 +2,7 @@
 
 import { useId } from "react";
 import Link from "next/link";
+import { LiveBadge } from "@/features/live/live-badge";
 import { ActivityItem } from "./activity-item";
 import { FeedSkeleton } from "./activity-feed";
 import { useActivity } from "./use-activity";
@@ -38,6 +39,7 @@ export function RecentActivity({
         >
           {title}
         </h2>
+        {compact && <LiveBadge />}
         <Link
           href={seeAll}
           className="py-2 text-[14px] font-medium hover:underline"

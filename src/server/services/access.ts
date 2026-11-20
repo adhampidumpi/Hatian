@@ -16,6 +16,7 @@ export async function requireMembership(groupId: string, userId: string) {
       groupId: true,
       name: true,
       role: true,
+      colorIndex: true,
       group: { select: { currency: true, name: true } },
     },
   });
