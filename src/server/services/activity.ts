@@ -97,10 +97,12 @@ export async function listActivity(userId: string, query: ActivityQuery) {
         entityId: row.entityId,
         actor: {
           memberId: member?.id ?? null,
+          // `actor` can be missing if they were deleted (an expired demo)
+          // between this query and loading the people.
           name:
             member?.name ??
-            row.actor.name ??
-            row.actor.email?.split("@")[0] ??
+            row.actor?.name ??
+            row.actor?.email?.split("@")[0] ??
             "Someone",
           colorIndex: member?.colorIndex ?? 0,
           isMe: row.actorId === userId,

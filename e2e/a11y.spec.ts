@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
+import { seededUser, signInAs } from "./helpers";
 
 // WCAG 2.1 AA scan of every screen, at phone and desktop sizes, in light
 // and dark mode (the app follows the system setting by default).
@@ -38,12 +39,8 @@ for (const colorScheme of ["light", "dark"] as const) {
     });
 
     test.describe("signed in", () => {
-      test.beforeEach(async ({ page }) => {
-        await page.goto("/login");
-        await page
-          .getByRole("button", { name: "Try the demo account" })
-          .click();
-        await expect(page).toHaveURL("/");
+      test.beforeEach(async ({ context }) => {
+        await signInAs(context, seededUser);
       });
 
       for (const path of [
@@ -62,6 +59,8 @@ for (const colorScheme of ["light", "dark"] as const) {
       test("no accessibility violations on every group screen", async ({
         page,
       }) => {
+        test.slow(); // seven screens, each scanned
+        await page.goto("/");
         await page
           .getByRole("main")
           .getByRole("link", { name: /Siargao Trip/ })
@@ -107,11 +106,11 @@ for (const colorScheme of ["light", "dark"] as const) {
 
     test("no accessibility violations on an invite link", async ({
       page,
+      context,
       browser,
     }) => {
-      await page.goto("/login");
-      await page.getByRole("button", { name: "Try the demo account" }).click();
-      await expect(page).toHaveURL("/");
+      await signInAs(context, seededUser);
+      await page.goto("/");
       const groups = await (
         await page.request.get("/api/trpc/groups.list")
       ).json();

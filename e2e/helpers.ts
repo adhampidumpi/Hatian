@@ -49,6 +49,16 @@ export async function signInAs(context: BrowserContext, user: TestUser) {
   ]);
 }
 
+/**
+ * The sample account `pnpm db:seed` creates (Maria Santos with the Siargao
+ * Trip). Faster than "Try the demo", which builds a fresh copy each time.
+ */
+export const seededUser: TestUser = {
+  id: "you",
+  name: "Maria Santos",
+  email: "demo@hatian.app",
+};
+
 /** Delete everything the given test users created. */
 export async function removeUsers(users: TestUser[]) {
   const ids = users.map((u) => u.id);

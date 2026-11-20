@@ -1,3 +1,4 @@
+import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 test("the demo is a private copy where a friend adds an expense live", async ({
@@ -12,6 +13,10 @@ test("the demo is a private copy where a friend adds an expense live", async ({
     .getByRole("link", { name: /Siargao Trip/ })
     .click();
   await expect(page.getByText("Your private demo")).toBeVisible();
+  const scan = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .analyze();
+  expect(scan.violations.map((v) => v.id)).toEqual([]);
 
   await page.getByRole("button", { name: "Watch Bea add an expense" }).click();
   await expect(page.getByText("is adding an expense")).toBeVisible();

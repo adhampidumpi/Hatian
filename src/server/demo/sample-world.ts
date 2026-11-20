@@ -66,22 +66,23 @@ export async function createSampleWorld(
     samplePeople.find((p) => p.id === personId)!.name;
   const you = cast.you!;
 
-  async function log(
+  // History is written in one batch at the end: fewer round trips, so a
+  // visitor's demo starts quickly.
+  const history: Prisma.ActivityCreateManyInput[] = [];
+  function log(
     groupId: string,
     actorId: string,
     entityId: string | null,
     diff: ActivityDiff,
     createdAt: Date,
   ) {
-    await db.activity.create({
-      data: {
-        groupId,
-        actorId,
-        type: diff.type,
-        entityId,
-        diff: diffJson(diff),
-        createdAt,
-      },
+    history.push({
+      groupId,
+      actorId,
+      type: diff.type,
+      entityId,
+      diff: diffJson(diff),
+      createdAt,
     });
   }
 
@@ -98,9 +99,19 @@ export async function createSampleWorld(
         currency: "PHP",
         createdById: you,
         createdAt: at(opts.createdAt, 9),
+        members: {
+          create: opts.personIds.map((personId, colorIndex) => ({
+            userId: userIdOf(personId),
+            name: nameOf(personId),
+            role: personId === "you" ? ("OWNER" as const) : ("MEMBER" as const),
+            colorIndex,
+            joinedAt: userIdOf(personId) ? at(opts.createdAt, 10) : null,
+          })),
+        },
       },
+      include: { members: { orderBy: { colorIndex: "asc" } } },
     });
-    await log(
+    log(
       created.id,
       you,
       null,
@@ -109,22 +120,13 @@ export async function createSampleWorld(
     );
 
     const member: Record<string, string> = {};
-    for (const [colorIndex, personId] of opts.personIds.entries()) {
-      const userId = userIdOf(personId);
-      const m = await db.groupMember.create({
-        data: {
-          groupId: created.id,
-          userId,
-          name: nameOf(personId),
-          role: personId === "you" ? "OWNER" : "MEMBER",
-          colorIndex,
-          joinedAt: userId ? at(opts.createdAt, 10) : null,
-        },
-      });
+    for (const [index, personId] of opts.personIds.entries()) {
+      const m = created.members[index]!;
       member[personId] = m.id;
       if (personId === "you") continue;
+      const userId = userIdOf(personId);
       const snapshot = { memberId: m.id, name: m.name };
-      await log(
+      log(
         created.id,
         userId ?? you,
         m.id,
@@ -180,7 +182,7 @@ export async function createSampleWorld(
       },
       include: { shares: true },
     });
-    await log(
+    log(
       g.id,
       actorId,
       created.id,
@@ -214,7 +216,7 @@ export async function createSampleWorld(
         createdAt,
       },
     });
-    await log(
+    log(
       g.id,
       actorId,
       created.id,
@@ -299,4 +301,6 @@ export async function createSampleWorld(
       date: "2025-02-20",
     });
   }
+
+  await db.activity.createMany({ data: history });
 }
