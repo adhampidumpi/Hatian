@@ -10,6 +10,8 @@ export type CurrentUser = {
   name: string | null;
   email: string | null;
   image: string | null;
+  /** Set for "Try the demo" accounts: when their private copy is deleted. */
+  demoExpiresAt: Date | null;
 };
 
 /**
@@ -31,7 +33,13 @@ export const getSessionUser = cache(async (): Promise<CurrentUser | null> => {
   if (!id) return null;
   return db.user.findUnique({
     where: { id },
-    select: { id: true, name: true, email: true, image: true },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      image: true,
+      demoExpiresAt: true,
+    },
   });
 });
 

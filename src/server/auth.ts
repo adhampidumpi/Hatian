@@ -5,8 +5,7 @@ import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
 import Resend from "next-auth/providers/resend";
 import { db } from "./db";
-
-export const DEMO_EMAIL = "demo@hatian.app";
+import { startDemo } from "./services/demo";
 
 /** How long a magic link stays valid, in seconds (Auth.js default: 24h). */
 export const EMAIL_LINK_MAX_AGE = 24 * 60 * 60;
@@ -50,12 +49,8 @@ if (authOptions.demo) {
       id: "demo",
       name: "Demo account",
       credentials: {},
-      // No password: anyone can explore the seeded demo data.
-      authorize: async () =>
-        db.user.findUnique({
-          where: { email: DEMO_EMAIL },
-          select: { id: true, name: true, email: true, image: true },
-        }),
+      // No password: each visitor gets a private copy of the sample data.
+      authorize: () => startDemo(),
     }),
   );
 }

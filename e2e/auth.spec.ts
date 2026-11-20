@@ -46,7 +46,7 @@ test("signing out returns to the login page", async ({ page }) => {
   await signInAsDemo(page);
   await page.goto("/account");
   await expect(
-    page.getByRole("main").getByText("demo@hatian.app"),
+    page.getByRole("main").getByText(/Private demo, deleted in/),
   ).toBeVisible();
   await page.getByRole("button", { name: "Sign out" }).click();
   await expect(page).toHaveURL(/\/login/);
@@ -58,6 +58,6 @@ test("sign-in errors show a message instead of crashing", async ({ page }) => {
   await page.goto("/login?error=CredentialsSignin");
   // Scoped to main: Next's route announcer is also role="alert".
   await expect(page.getByRole("main").getByRole("alert")).toHaveText(
-    "The demo account isn't available right now.",
+    "The demo is busy right now. Try again in a few minutes.",
   );
 });

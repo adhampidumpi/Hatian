@@ -1,3 +1,4 @@
+import { formatDistanceToNowStrict } from "date-fns";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
@@ -42,10 +43,20 @@ async function AccountDetails() {
         <dt className="text-[13px] text-ink-3">Name</dt>
         <dd className="font-medium">{user.name ?? "Not set"}</dd>
       </div>
-      <div>
-        <dt className="text-[13px] text-ink-3">Email</dt>
-        <dd className="font-medium">{user.email}</dd>
-      </div>
+      {user.demoExpiresAt ? (
+        <div>
+          <dt className="text-[13px] text-ink-3">Account</dt>
+          <dd className="font-medium">
+            Private demo, deleted{" "}
+            {formatDistanceToNowStrict(user.demoExpiresAt, { addSuffix: true })}
+          </dd>
+        </div>
+      ) : (
+        <div>
+          <dt className="text-[13px] text-ink-3">Email</dt>
+          <dd className="font-medium">{user.email}</dd>
+        </div>
+      )}
     </dl>
   );
 }

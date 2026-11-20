@@ -7,7 +7,13 @@ export async function makeUser(name = "Tester") {
   const id = `test_${randomUUID()}`;
   return db.user.create({
     data: { id, name, email: `${id}@example.test` },
-    select: { id: true, name: true, email: true, image: true },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      image: true,
+      demoExpiresAt: true,
+    },
   });
 }
 

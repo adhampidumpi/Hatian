@@ -6,7 +6,7 @@ import { db } from "../db";
 import type { CurrentUser } from "../session";
 import { requireMembership } from "./access";
 import { logActivity } from "./activity-log";
-import { conflict, notFound } from "./errors";
+import { conflict, forbidden, notFound } from "./errors";
 import { displayNameFor } from "./groups";
 
 /** 144 random bits: unguessable, unlike Prisma's default cuid ids. */
@@ -97,6 +97,12 @@ export async function previewInvite(token: string, userId: string | null) {
  * history), rejoin if you left before, or join as someone new.
  */
 export async function joinGroup(user: CurrentUser, input: JoinGroupInput) {
+  // Demo copies are deleted after a day, so they stay self-contained.
+  if (user.demoExpiresAt) {
+    throw forbidden(
+      "Demo accounts can't join groups. Sign in with Google to join.",
+    );
+  }
   const group = await findActiveInvite(input.token);
 
   return db.$transaction(async (tx) => {

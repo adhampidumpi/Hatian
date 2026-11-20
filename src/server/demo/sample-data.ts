@@ -4,7 +4,7 @@
  * Amounts are in centavos. `id` is a stable key for each person; the seed
  * maps it to a user (if they have an account) and a group member.
  */
-import type { SplitMode } from "../src/lib/money/split";
+import type { SplitMode } from "@/lib/money/split";
 
 export const siargaoMembers = [
   // The demo user. The UI calls the signed-in user "You"; initials "MS".

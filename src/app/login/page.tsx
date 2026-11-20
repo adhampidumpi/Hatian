@@ -16,7 +16,7 @@ const errorMessages: Record<string, string> = {
   Verification: "That sign-in link has expired or was already used.",
   OAuthAccountNotLinked:
     "That email is already linked to another sign-in method.",
-  CredentialsSignin: "The demo account isn't available right now.",
+  CredentialsSignin: "The demo is busy right now. Try again in a few minutes.",
   AccessDenied: "Sign-in was cancelled.",
 };
 

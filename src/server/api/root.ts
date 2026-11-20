@@ -1,5 +1,6 @@
 import "server-only";
 import { activityRouter } from "./routers/activity";
+import { demoRouter } from "./routers/demo";
 import { expensesRouter } from "./routers/expenses";
 import { groupsRouter } from "./routers/groups";
 import { invitesRouter } from "./routers/invites";
@@ -16,6 +17,7 @@ export const appRouter = router({
   payments: paymentsRouter,
   activity: activityRouter,
   live: liveRouter,
+  demo: demoRouter,
   rates: ratesRouter,
 });
 

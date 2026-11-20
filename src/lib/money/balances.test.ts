@@ -4,7 +4,7 @@ import {
   siargaoExpected,
   siargaoExpenses,
   siargaoMembers,
-} from "../../../prisma/sample-data";
+} from "@/server/demo/sample-data";
 import {
   computeBalances,
   computePairwiseDebts,
