@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { ADD_EXPENSE_HREF } from "./nav-items";
+import { addExpenseHref, isEditorRoute } from "./nav-items";
 
 /** Press N anywhere (outside a text field) to add an expense. */
 export function AddExpenseShortcut() {
@@ -14,6 +14,7 @@ export function AddExpenseShortcut() {
         return;
       if (event.metaKey || event.ctrlKey || event.altKey || event.repeat)
         return;
+      if (isEditorRoute(window.location.pathname)) return;
       const target = event.target as HTMLElement | null;
       if (
         target?.isContentEditable ||
@@ -22,7 +23,7 @@ export function AddExpenseShortcut() {
         return;
       }
       event.preventDefault();
-      router.push(ADD_EXPENSE_HREF);
+      router.push(addExpenseHref(window.location.pathname));
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);

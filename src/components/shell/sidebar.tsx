@@ -8,8 +8,7 @@ import { cn } from "@/lib/utils";
 import { getGroupSummaries } from "@/server/services/groups";
 import { requireUser } from "@/server/session";
 import { AddExpenseShortcut } from "./add-expense-shortcut";
-import { ADD_EXPENSE_HREF } from "./nav-items";
-import { SidebarGroupLink, SidebarNav } from "./sidebar-nav";
+import { AddExpenseLink, SidebarGroupLink, SidebarNav } from "./sidebar-nav";
 
 /** Navigation at `lg`+: Add expense (N), nav, and groups with balances. */
 export function Sidebar() {
@@ -22,16 +21,7 @@ export function Sidebar() {
         <Logo />
       </Link>
 
-      <Link
-        href={ADD_EXPENSE_HREF}
-        className="flex h-[46px] items-center justify-center gap-2 rounded-xl bg-ink text-[15px] font-semibold text-paper"
-      >
-        <Plus size={18} strokeWidth={2.2} aria-hidden />
-        Add expense
-        <kbd className="rounded-[5px] bg-paper/15 px-1.5 py-0.5 amount text-[11px]">
-          N
-        </kbd>
-      </Link>
+      <AddExpenseLink />
       <AddExpenseShortcut />
 
       <SidebarNav />

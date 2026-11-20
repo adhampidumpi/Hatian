@@ -27,6 +27,19 @@ export function formatMoney(
     .replace("-", MINUS);
 }
 
+/** "₱" for PHP, "$" for USD: the short symbol used next to inputs. */
+export function currencySymbol(currency: string, locale = "en-PH"): string {
+  return (
+    new Intl.NumberFormat(locale, {
+      style: "currency",
+      currency,
+      currencyDisplay: "narrowSymbol",
+    })
+      .formatToParts(0)
+      .find((part) => part.type === "currency")?.value ?? currency
+  );
+}
+
 /** Plain decimal for files and inputs, no symbol or grouping: "12500.00". */
 export function formatDecimal(amount: number, currency: string): string {
   const exponent = currencyExponent(currency);

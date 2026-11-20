@@ -27,6 +27,17 @@ export const accountItem: NavItem = {
 
 export const ADD_EXPENSE_HREF = "/expenses/new";
 
+/** Inside a group, "add expense" means that group; elsewhere, pick one. */
+export function addExpenseHref(pathname: string | null) {
+  const groupId = pathname?.match(/^\/groups\/([^/]+)/)?.[1];
+  return groupId ? `/groups/${groupId}/expenses/new` : ADD_EXPENSE_HREF;
+}
+
+/** Full-screen editors bring their own footer, so the tab bar steps aside. */
+export function isEditorRoute(pathname: string | null) {
+  return Boolean(pathname?.match(/^\/groups\/[^/]+\/expenses\/[^/]+$/));
+}
+
 export function isActive(pathname: string, href: string) {
   return href === "/" ? pathname === "/" : pathname.startsWith(href);
 }

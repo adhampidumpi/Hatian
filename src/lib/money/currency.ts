@@ -47,6 +47,25 @@ export function currencyExponent(code: string): number {
   return getCurrency(code).exponent;
 }
 
+const minorUnitNames: Record<string, [string, string]> = {
+  PHP: ["centavo", "centavos"],
+  USD: ["cent", "cents"],
+  EUR: ["cent", "cents"],
+  AUD: ["cent", "cents"],
+  SGD: ["cent", "cents"],
+  HKD: ["cent", "cents"],
+  GBP: ["penny", "pence"],
+  THB: ["satang", "satang"],
+  JPY: ["yen", "yen"],
+  KRW: ["won", "won"],
+};
+
+/** "1 extra centavo", "2 extra cents": the name of the smallest unit. */
+export function minorUnitName(code: string, count: number): string {
+  const [one, many] = minorUnitNames[code] ?? ["unit", "units"];
+  return count === 1 ? one : many;
+}
+
 /** True for a whole, non-negative number of minor units that fits a column. */
 export function isValidMinor(amount: number): boolean {
   return Number.isSafeInteger(amount) && amount >= 0 && amount <= MAX_MINOR;

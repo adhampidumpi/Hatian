@@ -6,7 +6,14 @@ import { GroupIcon } from "./group-icon";
 import { groupTilePalette, settledTile } from "@/lib/palette";
 import type { GroupSummary } from "@/server/services/groups";
 
-export function GroupList({ groups }: { groups: GroupSummary[] }) {
+export function GroupList({
+  groups,
+  hrefFor = (id) => `/groups/${id}`,
+}: {
+  groups: GroupSummary[];
+  /** Where each row goes; the group page unless told otherwise. */
+  hrefFor?: (groupId: string) => string;
+}) {
   return (
     <ul className="flex flex-col">
       {groups.map((group, index) => {
@@ -16,7 +23,7 @@ export function GroupList({ groups }: { groups: GroupSummary[] }) {
         return (
           <li key={group.id} className="border-b border-line last:border-b-0">
             <Link
-              href={`/groups/${group.id}`}
+              href={hrefFor(group.id)}
               className="flex items-center gap-3.5 py-3"
             >
               <span

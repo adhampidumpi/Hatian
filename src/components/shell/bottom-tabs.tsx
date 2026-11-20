@@ -8,10 +8,11 @@ import { cn } from "@/lib/utils";
 import {
   accountItem,
   activityItem,
-  ADD_EXPENSE_HREF,
+  addExpenseHref,
   groupsItem,
   homeItem,
   isActive as isActivePath,
+  isEditorRoute,
   type NavItem,
 } from "./nav-items";
 
@@ -31,6 +32,7 @@ function CurrentTabBar() {
 }
 
 function TabBar({ pathname }: { pathname: string | null }) {
+  if (isEditorRoute(pathname)) return null;
   const isActive = (href: string) =>
     pathname !== null && isActivePath(pathname, href);
   return (
@@ -41,7 +43,7 @@ function TabBar({ pathname }: { pathname: string | null }) {
       <Tab item={homeItem} active={isActive(homeItem.href)} />
       <Tab item={groupsItem} active={isActive(groupsItem.href)} />
       <Link
-        href={ADD_EXPENSE_HREF}
+        href={addExpenseHref(pathname)}
         aria-label="Add expense"
         className="flex size-14 items-center justify-center rounded-[18px] bg-ink text-paper"
       >

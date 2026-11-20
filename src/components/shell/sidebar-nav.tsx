@@ -1,5 +1,6 @@
 "use client";
 
+import { Plus } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense } from "react";
@@ -7,10 +8,40 @@ import { cn } from "@/lib/utils";
 import {
   accountItem,
   activityItem,
+  ADD_EXPENSE_HREF,
+  addExpenseHref,
   homeItem,
   isActive,
   type NavItem,
 } from "./nav-items";
+
+/** "Add expense (N)": the current group's form when inside one. */
+export function AddExpenseLink() {
+  return (
+    <Suspense fallback={<AddExpenseButton href={ADD_EXPENSE_HREF} />}>
+      <CurrentAddExpenseButton />
+    </Suspense>
+  );
+}
+
+function CurrentAddExpenseButton() {
+  return <AddExpenseButton href={addExpenseHref(usePathname())} />;
+}
+
+function AddExpenseButton({ href }: { href: string }) {
+  return (
+    <Link
+      href={href}
+      className="flex h-[46px] items-center justify-center gap-2 rounded-xl bg-ink text-[15px] font-semibold text-paper"
+    >
+      <Plus size={18} strokeWidth={2.2} aria-hidden />
+      Add expense
+      <kbd className="rounded-[5px] bg-paper/15 px-1.5 py-0.5 amount text-[11px]">
+        N
+      </kbd>
+    </Link>
+  );
+}
 
 export function SidebarNav() {
   // Prerender without a highlight; the active item streams in (the pathname
