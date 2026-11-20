@@ -22,8 +22,11 @@ in `docs/`. Read these before starting any feature:
    solves.** Check `docs/research.md` first. Use the libraries listed below; if
    something isn't listed, look at how Spliit or SplitPro did it before writing it.
 2. **Money is always integer minor units** (centavos), never floats. Format only at
-   the edge. Split with dinero.js `allocate()` (largest remainder), so shares always
-   add up exactly to the total.
+   the edge. Split with `allocateShares()` in `src/lib/money/split.ts`
+   (largest remainder, as in Spliit), so shares always add up exactly to the total.
+   Don't swap in dinero.js `allocate()`: it gives leftover units to the largest
+   *ratios*, not the largest remainders (a property test caught this). dinero.js is
+   still used for currency data.
 3. **Match the design.** Recreate the screens in `design/` with the tokens in
    `docs/design-system.md`. No gradients, glassmorphism, emoji icons or
    left-border accent cards. Every amount uses the mono font with tabular figures.
