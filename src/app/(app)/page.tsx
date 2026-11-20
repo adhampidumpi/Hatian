@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { Suspense } from "react";
+import { CreateGroupDialog } from "@/features/groups/create-group-dialog";
 import { GroupList, GroupListSkeleton } from "@/features/groups/group-list";
 import { Money } from "@/components/money";
 import { MobileHeader, PageBody } from "@/components/shell/page-header";
@@ -74,9 +74,14 @@ async function HomeContent() {
           <h2 id="groups-heading" className="text-[17px] font-semibold">
             Groups
           </h2>
-          <Link href="/groups" className="py-3 text-[14px] font-medium">
-            New group
-          </Link>
+          <CreateGroupDialog>
+            <button
+              type="button"
+              className="min-h-11 text-[14px] font-medium underline-offset-4 hover:underline"
+            >
+              New group
+            </button>
+          </CreateGroupDialog>
         </div>
         {groups.length > 0 ? (
           <GroupList groups={groups} />

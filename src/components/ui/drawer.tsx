@@ -36,7 +36,7 @@ function DrawerOverlay({
     <DrawerPrimitive.Overlay
       data-slot="drawer-overlay"
       className={cn(
-        "fixed inset-0 z-50 bg-black/10 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
+        "fixed inset-0 z-50 bg-ink/40 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
         className,
       )}
       {...props}
@@ -71,10 +71,7 @@ function DrawerHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="drawer-header"
-      className={cn(
-        "flex flex-col gap-0.5 p-4 group-data-[vaul-drawer-direction=bottom]/drawer-content:text-center group-data-[vaul-drawer-direction=top]/drawer-content:text-center md:gap-0.5 md:text-left",
-        className,
-      )}
+      className={cn("flex flex-col gap-1 px-4 pt-4 pb-3 text-left", className)}
       {...props}
     />
   );
@@ -98,7 +95,7 @@ function DrawerTitle({
     <DrawerPrimitive.Title
       data-slot="drawer-title"
       className={cn(
-        "font-heading text-base font-medium text-foreground",
+        "font-heading text-[20px] leading-tight font-bold tracking-[-0.01em] text-foreground",
         className,
       )}
       {...props}

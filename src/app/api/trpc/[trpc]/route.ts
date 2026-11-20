@@ -8,11 +8,13 @@ function handler(req: Request) {
     req,
     router: appRouter,
     createContext: createTRPCContext,
-    onError:
-      process.env.NODE_ENV === "development"
-        ? ({ path, error }) =>
-            console.error(`tRPC failed on ${path ?? "<no-path>"}:`, error)
-        : undefined,
+    // Expected refusals (validation, not found, conflicts) are answers, not
+    // failures; only log real server errors.
+    onError: ({ path, error }) => {
+      if (error.code === "INTERNAL_SERVER_ERROR") {
+        console.error(`tRPC failed on ${path ?? "<no-path>"}:`, error);
+      }
+    },
   });
 }
 

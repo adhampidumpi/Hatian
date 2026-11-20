@@ -18,9 +18,9 @@ async function assertNameFree(
       name: { equals: name, mode: "insensitive" },
       ...(exceptId && { NOT: { id: exceptId } }),
     },
-    select: { id: true },
+    select: { name: true },
   });
-  if (clash) throw conflict(`There's already someone called ${name}.`);
+  if (clash) throw conflict(`There's already someone called ${clash.name}.`);
 }
 
 /** Add a friend by name (a placeholder they can claim later). */

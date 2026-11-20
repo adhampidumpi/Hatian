@@ -1,9 +1,13 @@
 import "server-only";
-import { dehydrate, HydrationBoundary } from "@tanstack/react-query";
 import {
-  createTRPCOptionsProxy,
-  type TRPCQueryOptions,
-} from "@trpc/tanstack-react-query";
+  dehydrate,
+  HydrationBoundary,
+  type FetchQueryOptions,
+  type QueryKey,
+} from "@tanstack/react-query";
+import { TRPCError } from "@trpc/server";
+import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
+import { notFound } from "next/navigation";
 import { cache } from "react";
 import { appRouter } from "@/server/api/root";
 import { createTRPCContext } from "@/server/api/trpc";
@@ -32,18 +36,32 @@ export function HydrateClient({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** Start a query on the server without awaiting it (it streams to the client). */
-export function prefetch<T extends ReturnType<TRPCQueryOptions<AnyQueryDef>>>(
-  queryOptions: T,
-) {
-  void getQueryClient().prefetchQuery(queryOptions);
+/**
+ * Fetch a query on the server and keep it in the cache for <HydrateClient>.
+ * A NOT_FOUND from the API becomes Next's 404 page.
+ */
+export async function fetchOrNotFound<
+  TQueryFnData,
+  TError,
+  TData,
+  TQueryKey extends QueryKey,
+>(
+  queryOptions: FetchQueryOptions<TQueryFnData, TError, TData, TQueryKey>,
+): Promise<TData> {
+  try {
+    return await getQueryClient().fetchQuery(queryOptions);
+  } catch (error) {
+    if (error instanceof TRPCError && error.code === "NOT_FOUND") notFound();
+    throw error;
+  }
 }
 
-// The resolver shape TRPCQueryOptions expects, for any procedure.
-type AnyQueryDef = {
-  input: unknown;
-  output: unknown;
-  transformer: boolean;
-  errorShape: unknown;
-  featureFlags: { keyPrefix: false };
-};
+/** Start a query on the server without awaiting it (it streams to the client). */
+export function prefetch<
+  TQueryFnData,
+  TError,
+  TData,
+  TQueryKey extends QueryKey,
+>(queryOptions: FetchQueryOptions<TQueryFnData, TError, TData, TQueryKey>) {
+  void getQueryClient().prefetchQuery(queryOptions);
+}

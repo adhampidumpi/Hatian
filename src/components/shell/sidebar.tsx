@@ -2,6 +2,7 @@ import { Plus } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { Logo } from "@/components/logo";
+import { CreateGroupDialog } from "@/features/groups/create-group-dialog";
 import { formatCompact, formatMoney } from "@/lib/money/format";
 import { cn } from "@/lib/utils";
 import { getGroupSummaries } from "@/server/services/groups";
@@ -44,13 +45,15 @@ export function Sidebar() {
             Groups
           </h2>
           {/* 44px target; negative margin keeps the header row compact. */}
-          <Link
-            href="/groups"
-            aria-label="New group"
-            className="-my-1.5 -mr-1.5 flex size-11 items-center justify-center rounded-lg text-ink-2 hover:bg-line-soft"
-          >
-            <Plus size={18} strokeWidth={2} aria-hidden />
-          </Link>
+          <CreateGroupDialog>
+            <button
+              type="button"
+              aria-label="New group"
+              className="-my-1.5 -mr-1.5 flex size-11 items-center justify-center rounded-lg text-ink-2 hover:bg-line-soft"
+            >
+              <Plus size={18} strokeWidth={2} aria-hidden />
+            </button>
+          </CreateGroupDialog>
         </div>
         <Suspense fallback={<GroupListSkeleton />}>
           <SidebarGroups />
