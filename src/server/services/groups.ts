@@ -1,7 +1,17 @@
 import "server-only";
 import { cache } from "react";
+import { isoDate } from "@/lib/activity";
 import { computeBalances } from "@/lib/money/balances";
+import type {
+  CreateGroupInput,
+  UpdateGroupInput,
+} from "@/lib/validation/groups";
 import { db } from "../db";
+import type { CurrentUser } from "../session";
+import { requireMembership } from "./access";
+import { logActivity } from "./activity-log";
+import { conflict, forbidden } from "./errors";
+import { balanceOf, loadLedger } from "./ledger";
 
 export type GroupSummary = {
   id: string;
@@ -83,6 +93,228 @@ export const getGroupSummaries = cache(async function getGroupSummaries(
     })
     .sort((a, b) => b.lastActivityAt.getTime() - a.lastActivityAt.getTime());
 });
+
+export type MemberView = {
+  id: string;
+  name: string;
+  colorIndex: number;
+  role: "OWNER" | "MEMBER";
+  isMe: boolean;
+  /** Has an account (joined or claimed). False for placeholders. */
+  joined: boolean;
+  removed: boolean;
+};
+
+export type GroupDetail = Awaited<ReturnType<typeof loadGroupDetail>>;
+
+/**
+ * One group as the signed-in member sees it: settings, members, balances and
+ * headline numbers. NOT_FOUND unless the user is an active member.
+ */
+export const getGroupDetail = cache(loadGroupDetail);
+
+async function loadGroupDetail(groupId: string, userId: string) {
+  const me = await requireMembership(groupId, userId);
+  const [group, ledger, stats] = await Promise.all([
+    db.group.findUniqueOrThrow({
+      where: { id: groupId },
+      select: {
+        id: true,
+        name: true,
+        icon: true,
+        currency: true,
+        simplifyDebts: true,
+        createdAt: true,
+        members: {
+          orderBy: { colorIndex: "asc" },
+          select: {
+            id: true,
+            name: true,
+            colorIndex: true,
+            role: true,
+            userId: true,
+            removedAt: true,
+          },
+        },
+      },
+    }),
+    loadLedger(groupId),
+    db.expense.aggregate({
+      where: { groupId, deletedAt: null },
+      _sum: { amount: true },
+      _count: true,
+      _min: { date: true },
+      _max: { date: true },
+    }),
+  ]);
+
+  const members: MemberView[] = group.members.map((m) => ({
+    id: m.id,
+    name: m.name,
+    colorIndex: m.colorIndex,
+    role: m.role,
+    isMe: m.id === me.id,
+    joined: m.userId !== null,
+    removed: m.removedAt !== null,
+  }));
+
+  return {
+    id: group.id,
+    name: group.name,
+    icon: group.icon,
+    currency: group.currency,
+    simplifyDebts: group.simplifyDebts,
+    createdAt: group.createdAt,
+    me: { memberId: me.id, role: me.role },
+    members,
+    balances: ledger.balances,
+    totalSpent: stats._sum.amount ?? 0,
+    expenseCount: stats._count,
+    firstDate: stats._min.date ? isoDate(stats._min.date) : null,
+    lastDate: stats._max.date ? isoDate(stats._max.date) : null,
+    /** Live expenses or payments exist (currency can no longer change). */
+    hasMoney: ledger.expenses.length > 0 || ledger.payments.length > 0,
+  };
+}
+
+/** Create a group with the creator as owner and friends as placeholders. */
+export async function createGroup(user: CurrentUser, input: CreateGroupInput) {
+  const ownerName = displayNameFor(user);
+  return db.$transaction(async (tx) => {
+    const group = await tx.group.create({
+      data: {
+        name: input.name,
+        icon: input.icon,
+        currency: input.currency,
+        createdById: user.id,
+      },
+    });
+    await logActivity(tx, {
+      groupId: group.id,
+      actorId: user.id,
+      diff: { type: "GROUP_CREATED", after: { name: group.name } },
+    });
+    await tx.groupMember.create({
+      data: {
+        groupId: group.id,
+        userId: user.id,
+        name: ownerName,
+        role: "OWNER",
+        colorIndex: 0,
+        joinedAt: new Date(),
+      },
+    });
+    for (const [i, name] of input.memberNames.entries()) {
+      const member = await tx.groupMember.create({
+        data: { groupId: group.id, name, colorIndex: i + 1 },
+      });
+      await logActivity(tx, {
+        groupId: group.id,
+        actorId: user.id,
+        entityId: member.id,
+        diff: { type: "MEMBER_ADDED", after: { memberId: member.id, name } },
+      });
+    }
+    return { id: group.id };
+  });
+}
+
+/** Rename, change icon/currency, or toggle Simplify debts. Any member may. */
+export async function updateGroup(userId: string, input: UpdateGroupInput) {
+  await requireMembership(input.groupId, userId);
+  return db.$transaction(async (tx) => {
+    const current = await tx.group.findUniqueOrThrow({
+      where: { id: input.groupId },
+      select: { name: true, icon: true, currency: true, simplifyDebts: true },
+    });
+    const changes = (
+      ["name", "icon", "currency", "simplifyDebts"] as const
+    ).filter((key) => input[key] !== undefined && input[key] !== current[key]);
+    if (changes.length === 0) return;
+
+    if (changes.includes("currency")) {
+      const { expenses, payments } = await loadLedger(input.groupId, tx);
+      if (expenses.length > 0 || payments.length > 0) {
+        throw conflict(
+          "The currency can't change once the group has expenses or payments.",
+        );
+      }
+    }
+
+    const before = Object.fromEntries(changes.map((k) => [k, current[k]]));
+    const after = Object.fromEntries(changes.map((k) => [k, input[k]]));
+    await tx.group.update({ where: { id: input.groupId }, data: after });
+    await logActivity(tx, {
+      groupId: input.groupId,
+      actorId: userId,
+      diff: { type: "GROUP_UPDATED", before, after },
+    });
+  });
+}
+
+/** Delete a group and everything in it. Owner only; can't be undone. */
+export async function deleteGroup(userId: string, groupId: string) {
+  const me = await requireMembership(groupId, userId);
+  if (me.role !== "OWNER") {
+    throw forbidden("Only the person who created the group can delete it.");
+  }
+  await db.group.delete({ where: { id: groupId } });
+}
+
+/** Leave a group. Not while you owe or are owed money there. */
+export async function leaveGroup(userId: string, groupId: string) {
+  const me = await requireMembership(groupId, userId);
+  await db.$transaction(async (tx) => {
+    if ((await balanceOf(groupId, me.id, tx)) !== 0) {
+      throw conflict("Settle up before leaving: your balance isn't zero.");
+    }
+    const others = await tx.groupMember.count({
+      where: {
+        groupId,
+        removedAt: null,
+        userId: { not: null },
+        NOT: { id: me.id },
+      },
+    });
+    if (me.role === "OWNER" && others > 0) {
+      // Hand ownership to the longest-standing member who has an account.
+      const heir = await tx.groupMember.findFirstOrThrow({
+        where: {
+          groupId,
+          removedAt: null,
+          userId: { not: null },
+          NOT: { id: me.id },
+        },
+        orderBy: { joinedAt: "asc" },
+      });
+      await tx.groupMember.update({
+        where: { id: heir.id },
+        data: { role: "OWNER" },
+      });
+    }
+    await tx.groupMember.update({
+      where: { id: me.id },
+      data: { removedAt: new Date(), role: "MEMBER" },
+    });
+    await logActivity(tx, {
+      groupId,
+      actorId: userId,
+      entityId: me.id,
+      diff: {
+        type: "MEMBER_REMOVED",
+        before: { memberId: me.id, name: me.name },
+      },
+    });
+  });
+}
+
+/** What to call a user inside a group when they join or create one. */
+export function displayNameFor(user: Pick<CurrentUser, "name" | "email">) {
+  return (user.name?.trim() || user.email?.split("@")[0] || "Someone").slice(
+    0,
+    40,
+  );
+}
 
 /**
  * Totals for the Home summary card. Groups may use different currencies;

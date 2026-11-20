@@ -12,7 +12,9 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-/** Icons a group can use. Stored by name in Group.icon. */
+import type { GroupIconName } from "@/lib/validation/groups";
+
+/** Components for the icon names in GROUP_ICONS (stored in Group.icon). */
 export const groupIcons = {
   users: Users,
   waves: Waves,
@@ -24,7 +26,7 @@ export const groupIcons = {
   car: Car,
   briefcase: Briefcase,
   "shopping-basket": ShoppingBasket,
-} satisfies Record<string, LucideIcon>;
+} satisfies Record<GroupIconName, LucideIcon>;
 
 export function GroupIcon({
   name,

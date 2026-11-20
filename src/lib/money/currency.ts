@@ -10,6 +10,23 @@ export const MAX_MINOR = 2_147_483_647;
 export type CurrencyCode = keyof typeof currencies;
 
 /**
+ * Currencies offered when creating a group (PHP first). Any decimal ISO code
+ * works in the maths; this list just keeps the picker short.
+ */
+export const SUPPORTED_CURRENCIES = [
+  "PHP",
+  "USD",
+  "EUR",
+  "JPY",
+  "SGD",
+  "HKD",
+  "KRW",
+  "THB",
+  "AUD",
+  "GBP",
+] as const satisfies readonly CurrencyCode[];
+
+/**
  * ISO 4217 codes we can handle. Excludes MGA and MRU, whose minor unit is a
  * fifth rather than a power of ten, which formatting and parsing don't support.
  */
