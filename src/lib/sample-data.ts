@@ -6,7 +6,8 @@
 import type { SplitMode } from "./money/split";
 
 export const siargaoMembers = [
-  { id: "you", name: "You", email: "demo@hatian.app" },
+  // The demo user. The UI calls the signed-in user "You"; initials "MS".
+  { id: "you", name: "Maria Santos", email: "demo@hatian.app" },
   { id: "ana", name: "Ana", email: "ana@example.com" },
   { id: "bea", name: "Bea", email: "bea@example.com" },
   { id: "carlo", name: "Carlo", email: "carlo@example.com" },

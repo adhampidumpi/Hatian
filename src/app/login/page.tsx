@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { Suspense } from "react";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { authOptions } from "@/server/auth";
+import { getSessionUser } from "@/server/session";
 import { signInAsDemo, signInWithGoogle } from "./actions";
 import { EmailForm } from "./email-form";
 
@@ -12,7 +15,8 @@ const errorMessages: Record<string, string> = {
   Verification: "That sign-in link has expired or was already used.",
   OAuthAccountNotLinked:
     "That email is already linked to another sign-in method.",
-  CredentialsSignin: "The demo account isn't set up yet. Run the seed script.",
+  CredentialsSignin: "The demo account isn't available right now.",
+  AccessDenied: "Sign-in was cancelled.",
 };
 
 export default function LoginPage({ searchParams }: PageProps<"/login">) {
@@ -34,45 +38,76 @@ export default function LoginPage({ searchParams }: PageProps<"/login">) {
 
       <section
         aria-label="Sign in"
-        className="flex flex-col gap-4 rounded-[20px] border border-line bg-card p-5"
+        className="flex min-h-[188px] flex-col gap-4 rounded-[20px] border border-line bg-card p-5"
       >
-        {authOptions.email && <EmailForm />}
-
-        {authOptions.email && (authOptions.google || authOptions.demo) && (
-          <div className="flex items-center gap-3 text-[13px] text-ink-3">
-            <span className="h-px flex-1 border-t border-dashed border-line-strong" />
-            or
-            <span className="h-px flex-1 border-t border-dashed border-line-strong" />
-          </div>
-        )}
-
-        {authOptions.google && (
-          <form action={signInWithGoogle}>
-            <Button
-              type="submit"
-              variant="outline"
-              size="lg"
-              className="w-full"
-            >
-              Continue with Google
-            </Button>
-          </form>
-        )}
-
-        {authOptions.demo && (
-          <form action={signInAsDemo}>
-            <Button
-              type="submit"
-              variant="secondary"
-              size="lg"
-              className="w-full"
-            >
-              Try the demo account
-            </Button>
-          </form>
-        )}
+        <Suspense fallback={<OptionsSkeleton />}>
+          <SignInOptions />
+        </Suspense>
       </section>
     </main>
+  );
+}
+
+/**
+ * Rendered per request, not prerendered: which providers are on depends on
+ * runtime environment variables, and signed-in visitors are sent home.
+ */
+async function SignInOptions() {
+  await connection();
+  if (await getSessionUser()) redirect("/");
+
+  const { email, google, demo } = authOptions;
+  if (!email && !google && !demo) {
+    return (
+      <p className="text-[15px] text-ink-2">
+        Sign-in isn&apos;t configured. Set AUTH_RESEND_KEY or the Google keys.
+      </p>
+    );
+  }
+
+  return (
+    <>
+      {email && <EmailForm />}
+
+      {email && (google || demo) && (
+        <div className="flex items-center gap-3 text-[13px] text-ink-3">
+          <span className="h-px flex-1 border-t border-dashed border-line-strong" />
+          or
+          <span className="h-px flex-1 border-t border-dashed border-line-strong" />
+        </div>
+      )}
+
+      {google && (
+        <form action={signInWithGoogle}>
+          <Button type="submit" variant="outline" size="lg" className="w-full">
+            Continue with Google
+          </Button>
+        </form>
+      )}
+
+      {demo && (
+        <form action={signInAsDemo}>
+          <Button
+            type="submit"
+            variant="secondary"
+            size="lg"
+            className="w-full"
+          >
+            Try the demo account
+          </Button>
+        </form>
+      )}
+    </>
+  );
+}
+
+function OptionsSkeleton() {
+  return (
+    <div aria-hidden className="flex flex-col gap-3">
+      <span className="h-4 w-12 animate-pulse rounded bg-line-soft" />
+      <span className="h-11 animate-pulse rounded-lg bg-line-soft" />
+      <span className="h-[46px] animate-pulse rounded-lg bg-line-soft" />
+    </div>
   );
 }
 

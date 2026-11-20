@@ -8,6 +8,9 @@ import { db } from "./db";
 
 export const DEMO_EMAIL = "demo@hatian.app";
 
+/** How long a magic link stays valid, in seconds (Auth.js default: 24h). */
+export const EMAIL_LINK_MAX_AGE = 24 * 60 * 60;
+
 const isDev = process.env.NODE_ENV !== "production";
 const hasResend = Boolean(process.env.AUTH_RESEND_KEY);
 const hasGoogle = Boolean(
@@ -27,6 +30,7 @@ if (authOptions.email) {
   providers.push(
     Resend({
       from: process.env.AUTH_EMAIL_FROM ?? "Hatian <login@example.com>",
+      maxAge: EMAIL_LINK_MAX_AGE,
       // Without a Resend key (local dev), print the magic link instead.
       ...(!hasResend && {
         apiKey: "dev",

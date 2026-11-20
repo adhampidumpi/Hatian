@@ -7,11 +7,7 @@ import { Label } from "@/components/ui/label";
 import { signInWithEmail } from "./actions";
 
 export function EmailForm() {
-  const [state, action, pending] = useActionState(
-    async (_: { error?: string } | undefined, formData: FormData) =>
-      signInWithEmail(formData),
-    undefined,
-  );
+  const [state, action, pending] = useActionState(signInWithEmail, undefined);
 
   return (
     <form action={action} className="flex flex-col gap-3" noValidate>

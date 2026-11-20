@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { computeBalances } from "@/lib/money/balances";
 import { db } from "../db";
 
@@ -21,8 +22,11 @@ export type GroupSummary = {
  * Balances are computed on read from expense shares and payments (as Spliit
  * does) rather than kept in a materialised table (as SplitPro does). Simpler
  * and always correct; revisit if groups grow to thousands of expenses.
+ *
+ * Wrapped in React `cache()` so the sidebar and the page share one query per
+ * request.
  */
-export async function getGroupSummaries(
+export const getGroupSummaries = cache(async function getGroupSummaries(
   userId: string,
 ): Promise<GroupSummary[]> {
   const groups = await db.group.findMany({
@@ -74,7 +78,7 @@ export async function getGroupSummaries(
       };
     })
     .sort((a, b) => b.lastActivityAt.getTime() - a.lastActivityAt.getTime());
-}
+});
 
 /**
  * Totals for the Home summary card. Groups may use different currencies;

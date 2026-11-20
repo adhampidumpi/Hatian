@@ -179,7 +179,18 @@ async function main() {
     });
   }
 
-  for (const user of [...siargaoMembers, ...otherPeople]) {
+  const people = [...siargaoMembers, ...otherPeople];
+  // A sample email may already belong to a different user (say, someone
+  // signed in as demo@hatian.app with a magic link before seeding). Remove
+  // those so the upserts below can't hit the unique email constraint.
+  await db.user.deleteMany({
+    where: {
+      email: { in: people.map((p) => p.email) },
+      id: { notIn: people.map((p) => p.id) },
+    },
+  });
+
+  for (const user of people) {
     await db.user.upsert({
       where: { id: user.id },
       create: { ...user, emailVerified: new Date() },
