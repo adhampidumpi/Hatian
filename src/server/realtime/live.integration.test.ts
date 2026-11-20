@@ -1,5 +1,5 @@
 import { afterAll, describe, expect, it, vi } from "vitest";
-import type { LiveEvent } from "@/lib/live";
+import type { LiveEvent, LiveMessage } from "@/lib/live";
 import { cleanUp, makeGroup, makeUser } from "@/test/factories";
 import { createCaller } from "../api/root";
 import { db } from "../db";
@@ -95,10 +95,12 @@ describe("live.events subscription", () => {
     const caller = (u: typeof maria) =>
       createCaller({ user: u }, { signal: controller.signal });
     const mine = await caller(maria).live.events();
-    const received: LiveEvent[] = [];
+    const received: LiveMessage[] = [];
     const reading = (async () => {
-      for await (const event of mine) received.push(event as LiveEvent);
+      for await (const message of mine) received.push(message);
     })().catch(() => {});
+    // Once it says it's listening, nothing after can be missed.
+    await vi.waitFor(() => expect(received).toEqual([{ type: "ready" }]));
 
     await caller(maria).live.presence({ groupId, activity: "adding-expense" });
     await caller(stranger).live.presence({
@@ -107,7 +109,7 @@ describe("live.events subscription", () => {
     });
     await publish({ type: "changed", groupId, actorUserId: stranger.id });
 
-    await vi.waitFor(() => expect(received).toHaveLength(1));
+    await vi.waitFor(() => expect(received).toHaveLength(2));
     await new Promise((r) => setTimeout(r, 300));
     controller.abort();
     await reading;
@@ -115,6 +117,7 @@ describe("live.events subscription", () => {
     // Only the change in Maria's group: not her own presence, nothing
     // from a group she isn't in.
     expect(received).toEqual([
+      { type: "ready" },
       { type: "changed", groupId, actorUserId: stranger.id },
     ]);
   });

@@ -1,4 +1,10 @@
 /**
+ * What the live subscription sends: "ready" once the server is listening
+ * (so nothing after it can be missed), then events.
+ */
+export type LiveMessage = LiveEvent | { type: "ready" };
+
+/**
  * Events pushed to browsers. Kept small (Postgres NOTIFY payloads are capped
  * at 8000 bytes) and free of data: clients refetch what changed, so the
  * usual authorisation applies to everything they see.

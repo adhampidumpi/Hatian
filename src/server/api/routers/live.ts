@@ -1,6 +1,6 @@
 import { on } from "node:events";
 import { z } from "zod";
-import { PRESENCE_TTL_MS, type LiveEvent } from "@/lib/live";
+import { PRESENCE_TTL_MS, type LiveEvent, type LiveMessage } from "@/lib/live";
 import { db } from "../../db";
 import { ensureListening, liveEvents, publish } from "../../realtime/bus";
 import { requireMembership } from "../../services/access";
@@ -20,11 +20,15 @@ export const liveRouter = router({
    * Events carry ids, not data: the client refetches through the normal
    * (authorised) queries. Your own presence is left out.
    */
-  events: protectedProcedure.subscription(async function* ({ ctx, signal }) {
+  events: protectedProcedure.subscription(async function* ({
+    ctx,
+    signal,
+  }): AsyncGenerator<LiveMessage> {
     // Listen first: `on` buffers, so nothing published during setup is lost.
     const events = on(liveEvents, "event", { signal });
     await ensureListening();
     let groups = await myGroupIds(ctx.user.id);
+    yield { type: "ready" };
     for await (const [event] of events) {
       const e = event as LiveEvent;
       // Your own changes may have added or left groups.

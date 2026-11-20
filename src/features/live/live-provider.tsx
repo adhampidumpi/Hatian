@@ -10,7 +10,7 @@ import { useTRPC } from "@/trpc/react";
 type Presence = Extract<LiveEvent, { type: "presence" }>;
 
 type LiveState = {
-  /** The live connection is open. */
+  /** The server is listening: changes from here on arrive live. */
   connected: boolean;
   /** Who is doing something in a group right now (never yourself). */
   presenceIn: (groupId?: string) => Presence[];
@@ -36,16 +36,24 @@ export function LiveProvider({ children }: { children: React.ReactNode }) {
   const [changes, setChanges] = useState(0);
   // A restart only means "we may have missed something" after a failure;
   // React's dev double-mount also restarts, and must not trigger a refresh.
-  const [connection, setConnection] = useState({ lost: false, recoveries: 0 });
+  const [connection, setConnection] = useState({
+    ready: false,
+    lost: false,
+    recoveries: 0,
+  });
 
   const subscription = useSubscription(
     trpc.live.events.subscriptionOptions(undefined, {
-      onError: () => setConnection((c) => ({ ...c, lost: true })),
-      onStarted: () =>
-        setConnection((c) =>
-          c.lost ? { lost: false, recoveries: c.recoveries + 1 } : c,
-        ),
+      onError: () => setConnection((c) => ({ ...c, ready: false, lost: true })),
       onData: (event) => {
+        if (event.type === "ready") {
+          setConnection((c) => ({
+            ready: true,
+            lost: false,
+            recoveries: c.lost ? c.recoveries + 1 : c.recoveries,
+          }));
+          return;
+        }
         if (event.type === "changed") {
           setChanges((n) => n + 1);
           return;
@@ -60,7 +68,7 @@ export function LiveProvider({ children }: { children: React.ReactNode }) {
       },
     }),
   );
-  const connected = subscription.status === "pending";
+  const connected = subscription.status === "pending" && connection.ready;
 
   // Refresh on each change, and once after recovering from a lost connection
   // (to catch anything missed). Bursts (an expense plus its activity row)
