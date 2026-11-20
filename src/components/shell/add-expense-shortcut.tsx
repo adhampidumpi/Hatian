@@ -1,0 +1,29 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { ADD_EXPENSE_HREF } from "./nav-items";
+
+/** Press N anywhere (outside a text field) to add an expense. */
+export function AddExpenseShortcut() {
+  const router = useRouter();
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key.toLowerCase() !== "n") return;
+      if (event.metaKey || event.ctrlKey || event.altKey || event.repeat)
+        return;
+      const target = event.target as HTMLElement | null;
+      if (
+        target?.isContentEditable ||
+        target?.closest("input, textarea, select, [role='dialog']")
+      ) {
+        return;
+      }
+      event.preventDefault();
+      router.push(ADD_EXPENSE_HREF);
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [router]);
+  return null;
+}

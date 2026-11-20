@@ -191,7 +191,7 @@ async function main() {
   const siargaoIds = siargaoMembers.map((m) => m.id);
   const siargao = await createGroup({
     name: "Siargao Trip",
-    icon: "palmtree",
+    icon: "waves",
     memberIds: siargaoIds,
     createdAt: "2026-11-10",
   });
