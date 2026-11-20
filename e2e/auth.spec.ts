@@ -45,7 +45,9 @@ test("an unknown group shows the not-found page", async ({ page }) => {
 test("signing out returns to the login page", async ({ page }) => {
   await signInAsDemo(page);
   await page.goto("/account");
-  await expect(page.getByText("demo@hatian.app")).toBeVisible();
+  await expect(
+    page.getByRole("main").getByText("demo@hatian.app"),
+  ).toBeVisible();
   await page.getByRole("button", { name: "Sign out" }).click();
   await expect(page).toHaveURL(/\/login/);
   await page.goto("/");

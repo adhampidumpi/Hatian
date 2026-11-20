@@ -21,9 +21,11 @@ export const liveRouter = router({
    * (authorised) queries. Your own presence is left out.
    */
   events: protectedProcedure.subscription(async function* ({ ctx, signal }) {
+    // Listen first: `on` buffers, so nothing published during setup is lost.
+    const events = on(liveEvents, "event", { signal });
     await ensureListening();
     let groups = await myGroupIds(ctx.user.id);
-    for await (const [event] of on(liveEvents, "event", { signal })) {
+    for await (const [event] of events) {
       const e = event as LiveEvent;
       // Your own changes may have added or left groups.
       if (e.actorUserId === ctx.user.id) groups = await myGroupIds(ctx.user.id);

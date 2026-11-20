@@ -85,3 +85,28 @@ export async function api<T>(
   if (!response.ok()) throw new Error(`${path}: ${JSON.stringify(body)}`);
   return body.result.data.json as T;
 }
+
+/**
+ * A fixed exchange rate for today (in both the browser's and UTC's
+ * calendar), so currency tests never call the real API. Today's rates are
+ * rechecked after an hour, so this can't linger in a dev database.
+ */
+export async function seedTodaysRate(
+  base: string,
+  quote: string,
+  rate: string,
+) {
+  const local = new Date().toLocaleDateString("en-CA");
+  const utc = new Date().toISOString().slice(0, 10);
+  const db = client();
+  await db.connect();
+  for (const date of new Set([local, utc])) {
+    await db.query(
+      `INSERT INTO "CurrencyRate" (base, quote, date, rate, "fetchedAt")
+       VALUES ($1, $2, $3, $4, now())
+       ON CONFLICT (base, quote, date) DO UPDATE SET rate = $4, "fetchedAt" = now()`,
+      [base, quote, date, rate],
+    );
+  }
+  await db.end();
+}

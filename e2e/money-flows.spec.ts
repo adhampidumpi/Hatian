@@ -3,6 +3,7 @@ import {
   api,
   createUser,
   removeUsers,
+  seedTodaysRate,
   signInAs,
   type TestUser,
 } from "./helpers";
@@ -38,7 +39,9 @@ test("create a group, split an expense, record a payment", async ({
   await page.getByLabel("Amount", { exact: true }).fill("900");
   await page.getByLabel("Description").fill("Dinner");
   await page.getByLabel("Include Carlo").uncheck();
-  await expect(page.getByRole("status")).toHaveText("₱900.00 split 2 ways");
+  // The form's status line (the offline notice is a status region too).
+  const formStatus = page.getByRole("status").filter({ hasText: "split" });
+  await expect(formStatus).toHaveText("₱900.00 split 2 ways");
   await page.getByRole("button", { name: "Save" }).click();
 
   await expect(page.getByText("Expense added")).toBeVisible();
@@ -188,4 +191,45 @@ test("a friend joins with the invite link and claims their spot", async ({
     danPage.getByText("₱3,000.00").filter({ visible: true }).first(),
   ).toBeVisible();
   await danContext.close();
+});
+
+test("an expense paid in another currency is converted", async ({
+  page,
+  context,
+}) => {
+  await seedTodaysRate("ZAR", "PHP", "3.5");
+  await signInAs(context, await newUser("Maria Test"));
+  await page.goto("/");
+  const { id: groupId } = await api<{ id: string }>(page, "groups.create", {
+    name: "Cape Town",
+    icon: "plane",
+    currency: "PHP",
+    memberNames: ["Jo"],
+  });
+
+  await page.goto(`/groups/${groupId}/expenses/new`);
+  await page.getByRole("button", { name: /Change currency/ }).click();
+  await page.getByRole("radio", { name: /South African Rand/ }).click();
+  await expect(
+    page.getByRole("button", { name: /^ZAR, South African Rand/ }),
+  ).toBeVisible();
+  await page.getByLabel("Amount", { exact: true }).fill("1000");
+  await page.getByLabel("Description").fill("Wine tour");
+  await expect(page.getByText("≈ ₱3,500.00")).toBeVisible();
+  await expect(
+    page.getByRole("status").filter({ hasText: "split" }),
+  ).toHaveText("ZAR 1,000.00 split 2 ways");
+  await page.getByRole("button", { name: "Save" }).click();
+
+  await expect(page.getByText("Expense added")).toBeVisible();
+  // Stored in pesos; the original amount stays on the expense.
+  await expect(
+    page.getByText("You're owed in this group").filter({ visible: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("₱1,750.00").filter({ visible: true }).first(),
+  ).toBeVisible();
+  await expect(
+    page.getByText("ZAR 1,000.00").filter({ visible: true }).first(),
+  ).toBeVisible();
 });
