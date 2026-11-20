@@ -42,7 +42,7 @@ export function CategoryTile({
     <span
       aria-hidden
       className={cn(
-        "flex size-10 shrink-0 items-center justify-center rounded-[11px] bg-[#ECE9E2] text-ink-2",
+        "flex size-10 shrink-0 items-center justify-center rounded-[11px] bg-tile text-ink-2",
         className,
       )}
     >

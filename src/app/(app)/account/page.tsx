@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
 import { PageBody, PageTitle } from "@/components/shell/page-header";
+import { ThemePicker } from "@/features/account/theme-picker";
 import { signOut } from "@/server/auth";
 import { requireUser } from "@/server/session";
 
@@ -18,6 +19,7 @@ export default function AccountPage() {
       >
         <AccountDetails />
       </Suspense>
+      <ThemePicker />
       <form
         action={async () => {
           "use server";

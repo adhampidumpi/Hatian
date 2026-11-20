@@ -2,7 +2,7 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-/* Dark mode lands in phase 3 (docs/design-system.md). */
+/* next-themes puts `dark` on <html> (Light / Dark / System on Account). */
 @custom-variant dark (&:is(.dark *));
 
 /*
@@ -23,6 +23,40 @@
   --owe: #b23e0c;
   --owe-bar: #c2581c;
   --disabled: #dad6cd;
+  --tile: #ece9e2;
+  /* The picked option in a segmented control: lifts off the track. */
+  --raised: var(--card-bg);
+  /* Dashed borders and the zero line in balance bars. */
+  --rule: #b9b3a6;
+
+  /* Member avatars and split bars, by the member's place in the group. */
+  --member-1-bg: #dce6f2;
+  --member-1-fg: #1e3a5f;
+  --member-1-bar: #3b5b85;
+  --member-2-bg: #f3e1d3;
+  --member-2-fg: #7a3e12;
+  --member-2-bar: #c2703d;
+  --member-3-bg: #e3eedb;
+  --member-3-fg: #2f5a1e;
+  --member-3-bar: #5e8c4a;
+  --member-4-bg: #ede2f0;
+  --member-4-fg: #5b2d6e;
+  --member-4-bar: #8c5a9e;
+  --member-5-bg: #f5e9c8;
+  --member-5-fg: #6b4e00;
+  --member-5-bar: #b08a12;
+
+  /* Group icon tiles on Home. */
+  --group-1-bg: #dcebe6;
+  --group-1-fg: #0b4e39;
+  --group-2-bg: #f3e1d3;
+  --group-2-fg: #7a3e12;
+  --group-3-bg: #e8e4f2;
+  --group-3-fg: #45337a;
+  --group-4-bg: #f5e9c8;
+  --group-4-fg: #6b4e00;
+
+  color-scheme: light;
 
   /* shadcn/ui semantic variables, mapped onto the ledger palette. */
   --background: var(--paper);
@@ -55,6 +89,56 @@
   --sidebar-ring: var(--ink);
 }
 
+/*
+ * Dark: the ground turns to ink, the hues stay. Owed/owe and every text
+ * colour are lightened to keep 4.5:1 on paper, cards and tinted rows.
+ */
+.dark {
+  --paper: #15140f;
+  --card-bg: #1f1d17;
+  --ink: #f2efe8;
+  --ink-2: #c9c4b8;
+  --ink-3: #a8a296;
+  --line: #34312a;
+  --line-soft: #29271f;
+  --line-strong: #4a463d;
+  --owed: #5cc49b;
+  --owed-bg: #173a2e;
+  --owe: #f2895a;
+  --owe-bar: #e0743a;
+  --disabled: #3a372f;
+  --tile: #2b2922;
+  --raised: #3a372f;
+  --rule: #6a655a;
+
+  --member-1-bg: #1e2d42;
+  --member-1-fg: #bfd3ee;
+  --member-1-bar: #6f93c4;
+  --member-2-bg: #3d2616;
+  --member-2-fg: #f0c3a0;
+  --member-2-bar: #d08550;
+  --member-3-bg: #243520;
+  --member-3-fg: #c4e0b3;
+  --member-3-bar: #7fae69;
+  --member-4-bg: #33243a;
+  --member-4-fg: #dec4e8;
+  --member-4-bar: #a97bbb;
+  --member-5-bg: #3a3015;
+  --member-5-fg: #efd992;
+  --member-5-bar: #c9a23a;
+
+  --group-1-bg: #16352a;
+  --group-1-fg: #9fd9bf;
+  --group-2-bg: #3d2616;
+  --group-2-fg: #f0c3a0;
+  --group-3-bg: #2a2540;
+  --group-3-fg: #ccc2ee;
+  --group-4-bg: #3a3015;
+  --group-4-fg: #efd992;
+
+  color-scheme: dark;
+}
+
 @theme inline {
   /* Ledger palette as utilities: bg-paper, text-ink-2, border-line-strong… */
   --color-paper: var(--paper);
@@ -69,6 +153,9 @@
   --color-owe: var(--owe);
   --color-owe-bar: var(--owe-bar);
   --color-disabled: var(--disabled);
+  --color-tile: var(--tile);
+  --color-raised: var(--raised);
+  --color-rule: var(--rule);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);

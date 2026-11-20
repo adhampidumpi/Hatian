@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Instrument_Sans } from "next/font/google";
+import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
 import { TRPCReactProvider } from "@/trpc/react";
 import "./globals.css";
@@ -23,7 +24,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#F5F3EE",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#F5F3EE" },
+    { media: "(prefers-color-scheme: dark)", color: "#15140F" },
+  ],
   viewportFit: "cover",
 };
 
@@ -32,10 +36,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       className={`${instrumentSans.variable} ${plexMono.variable} h-full`}
+      // next-themes sets the theme class before React hydrates.
+      suppressHydrationWarning
     >
       <body className="min-h-full">
-        <TRPCReactProvider>{children}</TRPCReactProvider>
-        <Toaster />
+        <ThemeProvider attribute="class" disableTransitionOnChange>
+          <TRPCReactProvider>{children}</TRPCReactProvider>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

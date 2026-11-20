@@ -1,5 +1,6 @@
 "use client";
 
+import { useTheme } from "next-themes";
 import { Toaster as Sonner, type ToasterProps } from "sonner";
 import {
   CircleCheckIcon,
@@ -10,10 +11,10 @@ import {
 } from "lucide-react";
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  // Light only until dark mode lands (phase 3); then read it from next-themes.
+  const { theme = "system" } = useTheme();
   return (
     <Sonner
-      theme="light"
+      theme={theme as ToasterProps["theme"]}
       position="bottom-center"
       offset={{ bottom: 96 }}
       mobileOffset={{ bottom: 96 }}

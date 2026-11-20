@@ -261,7 +261,7 @@ export function ExpenseEditor({
         <div className="flex items-center gap-2.5 rounded-[18px] border border-line bg-card px-3.5 py-3 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-ink">
           <button
             type="button"
-            aria-label={`Currency: ${currencyName(currency)}. Change currency`}
+            aria-label={`${currency}, ${currencyName(currency)}. Change currency`}
             onClick={() => setPicker("currency")}
             className="flex h-11 shrink-0 items-center gap-1.5 rounded-xl border border-line-strong bg-paper px-3 text-[14px] font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
           >

@@ -27,7 +27,7 @@ export function PresenceLine({ groupId }: { groupId?: string }) {
       {people.map((p) => (
         <p
           key={`${p.groupId}:${p.memberId}`}
-          className="flex items-center gap-2.5 rounded-[10px] border border-dashed border-[#B9B3A6] px-2.5 py-2 text-[13px] text-ink-2"
+          className="flex items-center gap-2.5 rounded-[10px] border border-dashed border-rule px-2.5 py-2 text-[13px] text-ink-2"
         >
           <MemberAvatar
             member={{ name: p.name, colorIndex: p.colorIndex }}

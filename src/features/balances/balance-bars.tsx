@@ -79,7 +79,7 @@ export function BalanceBars({
                 </span>
               </div>
               <div aria-hidden className="mt-1.5 grid h-2.5 grid-cols-2">
-                <div className="flex justify-end border-r border-[#B9B3A6]">
+                <div className="flex justify-end border-r border-rule">
                   {value < 0 && (
                     <span
                       className="block h-2.5 rounded-l-[5px] bg-owe-bar"

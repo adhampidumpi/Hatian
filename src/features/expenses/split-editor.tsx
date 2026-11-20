@@ -85,7 +85,7 @@ export function SplitEditor({
               onClick={() => onChange({ ...state, mode: mode.id })}
               className={cn(
                 "h-[38px] rounded-[9px] text-[14px] font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink pointer-coarse:h-11",
-                on ? "bg-card text-ink shadow-sm" : "text-ink-2",
+                on ? "bg-raised text-ink shadow-sm" : "text-ink-2",
               )}
             >
               {mode.label}
