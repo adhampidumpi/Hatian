@@ -4,6 +4,7 @@ import pg from "pg";
 import type { Prisma } from "@/generated/prisma/client";
 import type { LiveEvent } from "@/lib/live";
 import { db } from "../db";
+import { env } from "../env";
 
 /**
  * Live updates over Postgres LISTEN/NOTIFY.
@@ -64,8 +65,7 @@ function createBus(): Listener {
 
 async function connect(): Promise<void> {
   const client = new pg.Client({
-    connectionString:
-      process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL,
+    connectionString: env.DATABASE_URL_UNPOOLED ?? env.DATABASE_URL,
   });
   client.on("notification", (message) => {
     if (message.channel !== CHANNEL || !message.payload) return;
