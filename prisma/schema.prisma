@@ -186,8 +186,9 @@ model Expense {
 
   group     Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
   category  Category?      @relation(fields: [categoryId], references: [id])
-  // NoAction (checked at the end of the statement) so deleting a group can
-  // cascade to its members and expenses in any order.
+  // Member references never cascade: a member with history can't be deleted
+  // on its own. Deleting a whole group removes expenses and payments first
+  // (see deleteGroup), because Postgres checks these per cascade step.
   paidBy    GroupMember    @relation("ExpensePaidBy", fields: [paidById], references: [id], onDelete: NoAction)
   createdBy User           @relation("ExpenseCreatedBy", fields: [createdById], references: [id])
   shares    ExpenseShare[]

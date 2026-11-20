@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowRight } from "lucide-react";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Money } from "@/components/money";
 import { Button } from "@/components/ui/button";
 import { MemberAvatar } from "@/features/groups/member-avatar";
@@ -30,6 +30,7 @@ export function SuggestedPayments({
   /** The desktop rail: tighter rows, no switch. */
   compact?: boolean;
 }) {
+  const headingId = useId();
   const [draft, setDraft] = useState<PaymentDraft | null>(null);
   const shown = group.simplifyDebts ? settleUp.simplified : settleUp.pairwise;
   const member = (id: string) => group.members.find((m) => m.id === id);
@@ -57,8 +58,8 @@ export function SuggestedPayments({
 
   return (
     <section
-      id="settle-up"
-      aria-labelledby="payments-heading"
+      id={compact ? undefined : "settle-up"}
+      aria-labelledby={headingId}
       className={cn(
         "scroll-mt-4 rounded-[18px] border border-line bg-card",
         compact ? "p-[18px]" : "p-4",
@@ -66,7 +67,7 @@ export function SuggestedPayments({
     >
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h2 id="payments-heading" className="text-[15px] font-semibold">
+          <h2 id={headingId} className="text-[15px] font-semibold">
             Suggested payments
           </h2>
           <p className="mt-0.5 text-[13px] text-ink-3">{caption}</p>

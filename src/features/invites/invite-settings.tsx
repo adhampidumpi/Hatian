@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link2, Share2 } from "lucide-react";
 import { toast } from "sonner";
@@ -16,6 +17,7 @@ export function InviteSettings({
   groupId: string;
   groupName: string;
 }) {
+  const headingId = useId();
   const trpc = useTRPC();
   const queryClient = useQueryClient();
   const current = useQuery(trpc.invites.current.queryOptions({ groupId }));
@@ -33,8 +35,8 @@ export function InviteSettings({
   );
 
   return (
-    <section aria-labelledby="invite-heading" className="flex flex-col gap-3">
-      <h2 id="invite-heading" className="text-[17px] font-semibold">
+    <section aria-labelledby={headingId} className="flex flex-col gap-3">
+      <h2 id={headingId} className="text-[17px] font-semibold">
         Invite link
       </h2>
       <p className="text-[14px] text-ink-2">

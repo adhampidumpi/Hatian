@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { MemberAvatar } from "@/features/groups/member-avatar";
 import { currencySymbol, formatMoney } from "@/lib/money/format";
 import type { SplitMode } from "@/lib/money/split";
@@ -44,6 +45,7 @@ export function SplitEditor({
   currency: string;
   onChange: (state: SplitState) => void;
 }) {
+  const headingId = useId();
   const set = <K extends "included" | "shares" | "percent" | "exact">(
     key: K,
     id: string,
@@ -57,11 +59,11 @@ export function SplitEditor({
 
   return (
     <section
-      aria-labelledby="split-heading"
+      aria-labelledby={headingId}
       className="rounded-[18px] border border-line bg-card p-3.5"
     >
       <div className="flex items-center justify-between gap-2">
-        <h2 id="split-heading" className="text-[15px] font-semibold">
+        <h2 id={headingId} className="text-[15px] font-semibold">
           Split
         </h2>
         <span className="text-[13px] text-ink-3">{view.summary}</span>

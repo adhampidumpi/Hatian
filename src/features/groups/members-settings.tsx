@@ -2,7 +2,7 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { Pencil, UserMinus } from "lucide-react";
-import { useState } from "react";
+import { useState, useId } from "react";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { FieldError } from "@/components/field-error";
@@ -23,6 +23,7 @@ import type { Group, Member } from "./use-group";
 
 /** Members list with add, rename and remove. The server enforces the rules. */
 export function MembersSettings({ group }: { group: Group }) {
+  const headingId = useId();
   const trpc = useTRPC();
   const refresh = useRefreshData();
   const [renaming, setRenaming] = useState<Member | null>(null);
@@ -41,8 +42,8 @@ export function MembersSettings({ group }: { group: Group }) {
   );
 
   return (
-    <section aria-labelledby="members-heading" className="flex flex-col gap-3">
-      <h2 id="members-heading" className="text-[17px] font-semibold">
+    <section aria-labelledby={headingId} className="flex flex-col gap-3">
+      <h2 id={headingId} className="text-[17px] font-semibold">
         People <span className="text-ink-3">· {active.length}</span>
       </h2>
       <ul className="flex flex-col rounded-2xl border border-line bg-card px-4">

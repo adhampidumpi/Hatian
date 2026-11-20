@@ -117,9 +117,7 @@ function CreateGroupForm({ onDone }: { onDone: () => void }) {
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <span className="text-sm font-medium" id="group-icon-label">
-          Icon
-        </span>
+        <span className="text-sm font-medium">Icon</span>
         <Controller
           control={form.control}
           name="icon"

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useId } from "react";
 import { Money } from "@/components/money";
 import { formatDay } from "@/lib/dates";
 import { groupByDay, myEffect } from "@/lib/expenses";
@@ -18,13 +19,14 @@ export function ExpenseList({
   expenses: Expense[];
 }) {
   const members = new Map(group.members.map((m) => [m.id, m]));
+  const baseId = useId();
   return (
     <div>
       {groupByDay(expenses).map((day) => (
-        <section key={day.date} aria-labelledby={`day-${day.date}`}>
+        <section key={day.date} aria-labelledby={`${baseId}-${day.date}`}>
           <div className="flex items-baseline justify-between pt-4 pb-1">
             <h2
-              id={`day-${day.date}`}
+              id={`${baseId}-${day.date}`}
               className="text-[13px] font-semibold tracking-[0.04em] text-ink-2 uppercase"
             >
               {formatDay(day.date)}

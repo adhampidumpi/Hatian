@@ -1,3 +1,6 @@
+"use client";
+
+import { useId } from "react";
 import { Money } from "@/components/money";
 import type { Group } from "@/features/groups/use-group";
 import { memberLabel } from "@/features/groups/use-group";
@@ -14,6 +17,7 @@ export function BalanceBars({
   group: Group;
   balances: Record<string, number>;
 }) {
+  const headingId = useId();
   const rows = group.members
     .filter((m) => !m.removed)
     .map((m) => ({ member: m, value: balances[m.id] ?? 0 }))
@@ -22,11 +26,11 @@ export function BalanceBars({
 
   return (
     <section
-      aria-labelledby="who-heading"
+      aria-labelledby={headingId}
       className="rounded-[18px] border border-line bg-card p-4"
     >
       <div className="flex items-baseline justify-between gap-3">
-        <h2 id="who-heading" className="text-[15px] font-semibold">
+        <h2 id={headingId} className="text-[15px] font-semibold">
           Who&apos;s up, who&apos;s down
         </h2>
         <span className="text-[12px] text-ink-3">

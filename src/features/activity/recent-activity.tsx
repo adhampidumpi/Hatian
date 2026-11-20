@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import Link from "next/link";
 import { ActivityItem } from "./activity-item";
 import { FeedSkeleton } from "./activity-feed";
@@ -17,19 +18,20 @@ export function RecentActivity({
   compact?: boolean;
   title?: string;
 }) {
+  const headingId = useId();
   const feed = useActivity({ groupId, limit });
   const seeAll = groupId ? `/groups/${groupId}/activity` : "/activity";
 
   return (
     <section
-      aria-labelledby="recent-activity"
+      aria-labelledby={headingId}
       className={
         compact ? "rounded-[18px] border border-line bg-card p-[18px]" : ""
       }
     >
       <div className="flex items-baseline justify-between">
         <h2
-          id="recent-activity"
+          id={headingId}
           className={
             compact ? "text-[15px] font-semibold" : "text-[17px] font-semibold"
           }

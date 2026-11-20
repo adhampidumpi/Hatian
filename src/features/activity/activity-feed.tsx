@@ -1,7 +1,7 @@
 "use client";
 
 import { isToday, isYesterday } from "date-fns";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { formatDay, todayIso } from "@/lib/dates";
 import { cn } from "@/lib/utils";
@@ -17,6 +17,7 @@ import { useActivity, type ActivityEntry } from "./use-activity";
 export function ActivityFeed({ groupId }: { groupId?: string }) {
   const [filter, setFilter] = useState<ActivityFilter>("ALL");
   const feed = useActivity({ groupId, filter });
+  const baseId = useId();
 
   return (
     <div className="flex max-w-2xl flex-col gap-4">
@@ -56,9 +57,9 @@ export function ActivityFeed({ groupId }: { groupId?: string }) {
       ) : (
         <>
           {byDay(feed.items).map((day) => (
-            <section key={day.key} aria-labelledby={`activity-${day.key}`}>
+            <section key={day.key} aria-labelledby={`${baseId}-${day.key}`}>
               <h2
-                id={`activity-${day.key}`}
+                id={`${baseId}-${day.key}`}
                 className="text-[13px] font-semibold tracking-[0.04em] text-ink-2 uppercase"
               >
                 {day.label}

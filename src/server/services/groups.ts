@@ -258,7 +258,14 @@ export async function deleteGroup(userId: string, groupId: string) {
   if (me.role !== "OWNER") {
     throw forbidden("Only the person who created the group can delete it.");
   }
-  await db.group.delete({ where: { id: groupId } });
+  // Money first: shares and payments point at members, and Postgres checks
+  // those references after each cascade step, so the group can't go first.
+  await db.$transaction([
+    db.expenseShare.deleteMany({ where: { expense: { groupId } } }),
+    db.expense.deleteMany({ where: { groupId } }),
+    db.payment.deleteMany({ where: { groupId } }),
+    db.group.delete({ where: { id: groupId } }),
+  ]);
 }
 
 /** Leave a group. Not while you owe or are owed money there. */

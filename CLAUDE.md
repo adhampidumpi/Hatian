@@ -122,8 +122,9 @@ Package manager is **pnpm** (`npm i -g pnpm`; Node 26 has no corepack).
 | `pnpm lint` | ESLint (Next + TypeScript + Prettier compat) |
 | `pnpm format` / `pnpm format:check` | Prettier (Markdown and `design/` are ignored) |
 | `pnpm typecheck` | `next typegen` then `tsc --noEmit` |
-| `pnpm test` | Vitest unit tests (`src/**/*.test.ts`) |
-| `pnpm e2e` | Playwright (flows + axe accessibility scan) against `pnpm start` on port 3100; build first and seed the DB |
+| `pnpm test` | Vitest unit tests (`src/**/*.test.ts`, no database) |
+| `pnpm test:integration` | Service rules against real Postgres (`*.integration.test.ts`); needs `DATABASE_URL` |
+| `pnpm e2e` | Playwright (money flows, invite/claim, auth, axe accessibility scan) against `pnpm start` on port 3100; build first and seed the DB. Test users sign in by cookie (`e2e/helpers.ts`) |
 | `pnpm db:local` | Local Postgres 17 without Docker (embedded-postgres, data in `.pgdata/`, port 5433); keep it running |
 | `pnpm db:migrate` | Create/apply a migration (`prisma migrate dev`) |
 | `pnpm db:deploy` | Apply migrations (CI / production) |

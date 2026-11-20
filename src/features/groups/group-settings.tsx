@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { DangerZone } from "./danger-zone";
 import { GroupDetailsForm } from "./group-details-form";
 import { MembersSettings } from "./members-settings";
@@ -15,16 +16,14 @@ export function GroupSettings({
   /** The invite link section (rendered by the invites feature). */
   invite?: React.ReactNode;
 }) {
+  const headingId = useId();
   const group = useGroup(groupId);
   return (
     <div className="flex flex-col gap-8">
       <GroupDetailsForm group={group} />
 
-      <section
-        aria-labelledby="simplify-heading"
-        className="flex flex-col gap-1"
-      >
-        <h2 id="simplify-heading" className="text-[17px] font-semibold">
+      <section aria-labelledby={headingId} className="flex flex-col gap-1">
+        <h2 id={headingId} className="text-[17px] font-semibold">
           Settling up
         </h2>
         <SimplifySwitch

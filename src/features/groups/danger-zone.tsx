@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -11,6 +12,7 @@ import type { Group } from "./use-group";
 
 /** Leave the group, or (owner) delete it. Both go back to Home. */
 export function DangerZone({ group }: { group: Group }) {
+  const headingId = useId();
   const trpc = useTRPC();
   const router = useRouter();
   const refresh = useRefreshData();
@@ -35,10 +37,10 @@ export function DangerZone({ group }: { group: Group }) {
 
   return (
     <section
-      aria-labelledby="danger-heading"
+      aria-labelledby={headingId}
       className="flex flex-col gap-3 border-t border-dashed border-line-strong pt-6"
     >
-      <h2 id="danger-heading" className="text-[17px] font-semibold">
+      <h2 id={headingId} className="text-[17px] font-semibold">
         Leave or delete
       </h2>
       <div className="flex flex-wrap gap-2">

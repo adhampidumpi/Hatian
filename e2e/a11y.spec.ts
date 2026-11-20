@@ -52,7 +52,9 @@ test.describe("signed in", () => {
     });
   }
 
-  test("no accessibility violations on a group page", async ({ page }) => {
+  test("no accessibility violations on every group screen", async ({
+    page,
+  }) => {
     await page
       .getByRole("main")
       .getByRole("link", { name: /Siargao Trip/ })
@@ -60,6 +62,62 @@ test.describe("signed in", () => {
     await expect(
       page.getByRole("heading", { name: "Siargao Trip" }),
     ).toBeVisible();
-    await expectNoViolations(page);
+    const base = new URL(page.url()).pathname;
+
+    for (const path of [
+      "",
+      "/balances",
+      "/activity",
+      "/settings",
+      "/expenses/new",
+    ]) {
+      await test.step(path || "/expenses", async () => {
+        await page.goto(base + path);
+        await expectNoViolations(page);
+      });
+    }
+
+    await test.step("edit expense", async () => {
+      await page.goto(base);
+      await page
+        .getByRole("link", { name: /Dinner at Kermit/ })
+        .first()
+        .click();
+      await expect(
+        page.getByRole("heading", { name: "Edit expense" }),
+      ).toBeVisible();
+      await expectNoViolations(page);
+    });
+
+    await test.step("record payment sheet", async () => {
+      await page.goto(`${base}/balances`);
+      await page.getByRole("button", { name: "Record" }).first().click();
+      await expect(page.getByRole("dialog")).toBeVisible();
+      await expectNoViolations(page);
+    });
   });
+});
+
+test("no accessibility violations on an invite link", async ({
+  page,
+  browser,
+}) => {
+  await page.goto("/login");
+  await page.getByRole("button", { name: "Try the demo account" }).click();
+  await expect(page).toHaveURL("/");
+  const groups = await (await page.request.get("/api/trpc/groups.list")).json();
+  const siargao = groups.result.data.json.find(
+    (g: { name: string }) => g.name === "Siargao Trip",
+  );
+  const ensure = await page.request.post("/api/trpc/invites.ensure", {
+    data: { json: { groupId: siargao.id } },
+  });
+  const { token } = (await ensure.json()).result.data.json;
+
+  const visitor = await browser.newContext();
+  const visitorPage = await visitor.newPage();
+  await visitorPage.goto(`/invite/${token}`);
+  await expect(visitorPage.getByText("Sign in to join")).toBeVisible();
+  await expectNoViolations(visitorPage);
+  await visitor.close();
 });

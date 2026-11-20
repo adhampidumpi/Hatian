@@ -1,5 +1,6 @@
 "use client";
 
+import { useId } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Controller, useForm } from "react-hook-form";
@@ -29,6 +30,7 @@ type Details = z.infer<typeof detailsSchema>;
 
 /** Name, icon and currency. Currency locks once money has been logged. */
 export function GroupDetailsForm({ group }: { group: Group }) {
+  const headingId = useId();
   const trpc = useTRPC();
   const refresh = useRefreshData();
   const form = useForm<Details>({
@@ -59,13 +61,13 @@ export function GroupDetailsForm({ group }: { group: Group }) {
   return (
     <form
       noValidate
-      aria-labelledby="details-heading"
+      aria-labelledby={headingId}
       onSubmit={form.handleSubmit((values) =>
         update.mutate({ groupId: group.id, ...values }),
       )}
       className="flex flex-col gap-5"
     >
-      <h2 id="details-heading" className="text-[17px] font-semibold">
+      <h2 id={headingId} className="text-[17px] font-semibold">
         Details
       </h2>
       <div className="flex flex-col gap-1.5">
