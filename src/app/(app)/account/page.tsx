@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Button } from "@/components/ui/button";
-import { PageBody, PageTitle } from "@/components/shell/page-header";
+import { PageBody, PageTitle } from "@/components/shell/page-layout";
 import { ThemePicker } from "@/features/account/theme-picker";
 import { signOut } from "@/server/auth";
 import { requireUser } from "@/server/session";

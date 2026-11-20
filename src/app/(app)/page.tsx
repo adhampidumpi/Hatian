@@ -3,7 +3,8 @@ import { RecentActivity } from "@/features/activity/recent-activity";
 import { CreateGroupDialog } from "@/features/groups/create-group-dialog";
 import { GroupList, GroupListSkeleton } from "@/features/groups/group-list";
 import { Money } from "@/components/money";
-import { MobileHeader, PageBody } from "@/components/shell/page-header";
+import { MobileHeader } from "@/components/shell/page-header";
+import { PageBody } from "@/components/shell/page-layout";
 import { cn } from "@/lib/utils";
 import { getGroupSummaries, summarise } from "@/server/services/groups";
 import { requireUser } from "@/server/session";
@@ -92,14 +93,7 @@ async function HomeContent() {
             </button>
           </CreateGroupDialog>
         </div>
-        {groups.length > 0 ? (
-          <GroupList groups={groups} />
-        ) : (
-          <p className="rounded-2xl border border-dashed border-line-strong p-5 text-[15px] text-ink-2">
-            You&apos;re not in any groups yet. Create one, or open an invite
-            link from a friend.
-          </p>
-        )}
+        <GroupList groups={groups} />
       </section>
 
       {groups.length > 0 && <RecentActivity />}

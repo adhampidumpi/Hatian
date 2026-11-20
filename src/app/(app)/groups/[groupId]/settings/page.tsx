@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { PageBody, SubPageHeader } from "@/components/shell/page-header";
+import { PageBody, SubPageHeader } from "@/components/shell/page-layout";
 import { GroupSettings } from "@/features/groups/group-settings";
 import { InviteSettings } from "@/features/invites/invite-settings";
 import { requireUser } from "@/server/session";

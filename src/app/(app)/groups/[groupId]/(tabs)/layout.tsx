@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { PageBody } from "@/components/shell/page-header";
+import { PageBody } from "@/components/shell/page-layout";
 import { GroupHeader } from "@/features/groups/group-header";
 import { requireUser } from "@/server/session";
 import { fetchOrNotFound, HydrateClient, trpc } from "@/trpc/server";

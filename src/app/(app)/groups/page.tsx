@@ -4,7 +4,7 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CreateGroupDialog } from "@/features/groups/create-group-dialog";
 import { GroupList, GroupListSkeleton } from "@/features/groups/group-list";
-import { PageBody, PageTitle } from "@/components/shell/page-header";
+import { PageBody, PageTitle } from "@/components/shell/page-layout";
 import { getGroupSummaries } from "@/server/services/groups";
 import { requireUser } from "@/server/session";
 

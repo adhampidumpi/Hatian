@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { PageBody, PageTitle } from "@/components/shell/page-header";
+import { PageBody, PageTitle } from "@/components/shell/page-layout";
 import { Button } from "@/components/ui/button";
 import { CreateGroupDialog } from "@/features/groups/create-group-dialog";
 import { GroupList, GroupListSkeleton } from "@/features/groups/group-list";

@@ -43,6 +43,7 @@ export function useActivity({
     ) as (typeof pages)[number]["groups"],
     isLoading: query.isLoading,
     isError: query.isError,
+    retry: () => void query.refetch(),
     hasMore: query.hasNextPage,
     loadMore: () => void query.fetchNextPage(),
     loadingMore: query.isFetchingNextPage,

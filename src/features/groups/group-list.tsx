@@ -14,6 +14,15 @@ export function GroupList({
   /** Where each row goes; the group page unless told otherwise. */
   hrefFor?: (groupId: string) => string;
 }) {
+  if (groups.length === 0) {
+    return (
+      <p className="rounded-2xl border border-dashed border-line-strong p-5 text-[15px] text-ink-2">
+        You&apos;re not in any groups yet. Create one, or open an invite link
+        from a friend.
+      </p>
+    );
+  }
+
   return (
     <ul className="flex flex-col">
       {groups.map((group, index) => {

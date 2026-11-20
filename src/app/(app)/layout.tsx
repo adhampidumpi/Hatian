@@ -1,4 +1,5 @@
 import { BottomTabs } from "@/components/shell/bottom-tabs";
+import { OfflineNotice } from "@/components/shell/offline-notice";
 import { Sidebar } from "@/components/shell/sidebar";
 import { LiveProvider } from "@/features/live/live-provider";
 
@@ -13,7 +14,10 @@ export default function AppLayout({ children }: LayoutProps<"/">) {
     <LiveProvider>
       <div className="flex min-h-dvh">
         <Sidebar />
-        <div className="min-w-0 flex-1 pb-28 lg:pb-0">{children}</div>
+        <div className="min-w-0 flex-1 pb-28 lg:pb-0">
+          <OfflineNotice />
+          {children}
+        </div>
         <BottomTabs />
       </div>
     </LiveProvider>

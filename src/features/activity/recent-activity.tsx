@@ -49,6 +49,17 @@ export function RecentActivity({
       </div>
       {feed.isLoading ? (
         <FeedSkeleton rows={2} />
+      ) : feed.isError ? (
+        <p className="text-[14px] text-ink-3">
+          Couldn&apos;t load activity.{" "}
+          <button
+            type="button"
+            onClick={feed.retry}
+            className="min-h-11 font-medium text-ink underline underline-offset-4"
+          >
+            Try again
+          </button>
+        </p>
       ) : feed.items.length === 0 ? (
         <p className="text-[14px] text-ink-3">Nothing yet.</p>
       ) : (

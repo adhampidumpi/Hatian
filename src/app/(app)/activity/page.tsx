@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PageBody, PageTitle } from "@/components/shell/page-header";
+import { PageBody, PageTitle } from "@/components/shell/page-layout";
 import { ActivityFeed } from "@/features/activity/activity-feed";
 
 export const metadata: Metadata = { title: "Activity" };

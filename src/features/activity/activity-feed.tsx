@@ -53,7 +53,16 @@ export function ActivityFeed({ groupId }: { groupId?: string }) {
       {feed.isLoading ? (
         <FeedSkeleton />
       ) : feed.isError ? (
-        <p className="text-[15px] text-owe">Couldn&apos;t load activity.</p>
+        <p role="alert" className="text-[15px] text-ink-2">
+          Couldn&apos;t load activity.{" "}
+          <button
+            type="button"
+            onClick={feed.retry}
+            className="min-h-11 font-medium text-ink underline underline-offset-4"
+          >
+            Try again
+          </button>
+        </p>
       ) : feed.items.length === 0 ? (
         <p className="rounded-2xl border border-dashed border-line-strong p-6 text-[15px] text-ink-2">
           {filter === "ALL"
