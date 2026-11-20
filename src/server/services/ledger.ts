@@ -6,6 +6,7 @@ import {
 } from "@/lib/money/balances";
 import type { Prisma } from "@/generated/prisma/client";
 import { db } from "../db";
+import { requireMembership } from "./access";
 
 type Client = Prisma.TransactionClient | typeof db;
 
@@ -46,8 +47,12 @@ export async function balanceOf(
   return balances[memberId] ?? 0;
 }
 
-/** Suggested settle-up payments both ways, for the Simplify switch. */
-export async function settleUpSuggestions(groupId: string) {
+/**
+ * Balances and suggested settle-up payments both ways, so the Simplify
+ * switch can show "4 payments instead of 10" without another request.
+ */
+export async function getSettleUp(userId: string, groupId: string) {
+  await requireMembership(groupId, userId);
   const { expenses, payments, balances } = await loadLedger(groupId);
   return {
     balances,

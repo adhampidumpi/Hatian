@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { RailSettleUp } from "@/features/balances/rail-settle-up";
 import { GroupExpenses } from "@/features/expenses/group-expenses";
 import { requireUser } from "@/server/session";
 import { fetchOrNotFound, HydrateClient, prefetch, trpc } from "@/trpc/server";
@@ -21,10 +22,14 @@ async function Expenses({
   const { groupId } = await params;
   await requireUser();
   prefetch(trpc.expenses.list.queryOptions({ groupId }));
+  prefetch(trpc.groups.settleUp.queryOptions({ groupId }));
   await fetchOrNotFound(trpc.groups.get.queryOptions({ groupId }));
   return (
     <HydrateClient>
-      <GroupExpenses groupId={groupId} />
+      <GroupExpenses
+        groupId={groupId}
+        railExtras={<RailSettleUp groupId={groupId} />}
+      />
     </HydrateClient>
   );
 }

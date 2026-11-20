@@ -15,6 +15,7 @@ import {
   updateGroup,
 } from "../../services/groups";
 import { addMember, removeMember, renameMember } from "../../services/members";
+import { getSettleUp } from "../../services/ledger";
 import { protectedProcedure, router } from "../trpc";
 
 export const groupsRouter = router({
@@ -23,6 +24,10 @@ export const groupsRouter = router({
   get: protectedProcedure
     .input(groupIdSchema)
     .query(({ ctx, input }) => getGroupDetail(input.groupId, ctx.user.id)),
+
+  settleUp: protectedProcedure
+    .input(groupIdSchema)
+    .query(({ ctx, input }) => getSettleUp(ctx.user.id, input.groupId)),
 
   create: protectedProcedure
     .input(createGroupSchema)
