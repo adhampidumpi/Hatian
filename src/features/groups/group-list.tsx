@@ -2,9 +2,9 @@ import { formatDistanceToNowStrict } from "date-fns";
 import { Check } from "lucide-react";
 import Link from "next/link";
 import { BalanceLabel } from "@/components/money";
-import { GroupIcon } from "@/components/group-icon";
+import { GroupIcon } from "./group-icon";
 import { groupTilePalette, settledTile } from "@/lib/palette";
-import type { GroupSummary } from "@/server/queries/groups";
+import type { GroupSummary } from "@/server/services/groups";
 
 export function GroupList({ groups }: { groups: GroupSummary[] }) {
   return (

@@ -30,20 +30,23 @@ export const getGroupSummaries = cache(async function getGroupSummaries(
   userId: string,
 ): Promise<GroupSummary[]> {
   const groups = await db.group.findMany({
-    where: { members: { some: { userId } } },
+    where: { members: { some: { userId, removedAt: null } } },
     select: {
       id: true,
       name: true,
       icon: true,
       currency: true,
       createdAt: true,
-      members: { select: { userId: true } },
+      members: {
+        where: { removedAt: null },
+        select: { id: true, userId: true },
+      },
       expenses: {
         where: { deletedAt: null },
         select: {
           paidById: true,
           amount: true,
-          shares: { select: { userId: true, amount: true } },
+          shares: { select: { memberId: true, amount: true } },
         },
       },
       payments: {
@@ -63,8 +66,9 @@ export const getGroupSummaries = cache(async function getGroupSummaries(
       const balances = computeBalances(
         group.expenses,
         group.payments,
-        group.members.map((m) => m.userId),
+        group.members.map((m) => m.id),
       );
+      const me = group.members.find((m) => m.userId === userId);
       const hasHistory = group.expenses.length > 0;
       return {
         id: group.id,
@@ -72,7 +76,7 @@ export const getGroupSummaries = cache(async function getGroupSummaries(
         icon: group.icon,
         currency: group.currency,
         memberCount: group.members.length,
-        myBalance: balances[userId] ?? 0,
+        myBalance: me ? (balances[me.id] ?? 0) : 0,
         settled: hasHistory && Object.values(balances).every((v) => v === 0),
         lastActivityAt: group.activities[0]?.createdAt ?? group.createdAt,
       };

@@ -6,8 +6,8 @@ import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { authOptions } from "@/server/auth";
 import { getSessionUser } from "@/server/session";
-import { signInAsDemo, signInWithGoogle } from "./actions";
-import { EmailForm } from "./email-form";
+import { signInAsDemo, signInWithGoogle } from "@/features/auth/actions";
+import { EmailForm } from "@/features/auth/email-form";
 
 export const metadata: Metadata = { title: "Sign in" };
 

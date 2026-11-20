@@ -2,19 +2,19 @@
 export type LedgerExpense = {
   paidById: string;
   amount: number;
-  shares: { userId: string; amount: number }[];
+  shares: { memberId: string; amount: number }[];
 };
 
 export type LedgerPayment = { fromId: string; toId: string; amount: number };
 
 export type Transfer = { from: string; to: string; amount: number };
 
-/** userId → net minor units. Positive: the group owes them. Negative: they owe. */
+/** memberId → net minor units. Positive: the group owes them. Negative: they owe. */
 export type Balances = Record<string, number>;
 
 /**
  * net(person) = paid − shares + payments made − payments received.
- * Every user listed in `memberIds` appears in the result, even with 0.
+ * Every member listed in `memberIds` appears in the result, even with 0.
  */
 export function computeBalances(
   expenses: LedgerExpense[],
@@ -28,7 +28,7 @@ export function computeBalances(
 
   for (const expense of expenses) {
     add(expense.paidById, expense.amount);
-    for (const share of expense.shares) add(share.userId, -share.amount);
+    for (const share of expense.shares) add(share.memberId, -share.amount);
   }
   for (const payment of payments) {
     add(payment.fromId, payment.amount);
@@ -56,7 +56,7 @@ export function computePairwiseDebts(
 
   for (const expense of expenses) {
     for (const share of expense.shares) {
-      addDebt(share.userId, expense.paidById, share.amount);
+      addDebt(share.memberId, expense.paidById, share.amount);
     }
   }
   // A payment from → to reduces what `from` owes `to`.
@@ -85,7 +85,7 @@ export function computePairwiseDebts(
 
 /**
  * Fewest-payments suggestions from net balances: repeatedly match the biggest
- * debtor with the biggest creditor. Ties break on user id, so the result is
+ * debtor with the biggest creditor. Ties break on member id, so the result is
  * stable: settling one suggestion doesn't reshuffle the others (as in Spliit).
  * Simplification changes who pays whom, never anyone's net balance.
  */

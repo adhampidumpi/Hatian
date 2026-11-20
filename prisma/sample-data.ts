@@ -1,9 +1,10 @@
 /**
  * The Siargao Trip sample group from docs/product-spec.md.
  * Shared by the seed script and the money tests so they can't drift apart.
- * Amounts are in centavos.
+ * Amounts are in centavos. `id` is a stable key for each person; the seed
+ * maps it to a user (if they have an account) and a group member.
  */
-import type { SplitMode } from "./money/split";
+import type { SplitMode } from "../src/lib/money/split";
 
 export const siargaoMembers = [
   // The demo user. The UI calls the signed-in user "You"; initials "MS".
@@ -11,7 +12,8 @@ export const siargaoMembers = [
   { id: "ana", name: "Ana", email: "ana@example.com" },
   { id: "bea", name: "Bea", email: "bea@example.com" },
   { id: "carlo", name: "Carlo", email: "carlo@example.com" },
-  { id: "dan", name: "Dan", email: "dan@example.com" },
+  // No account yet: a placeholder member who can claim his spot via the invite link.
+  { id: "dan", name: "Dan", email: null },
 ] as const;
 
 export type SampleExpense = {
@@ -112,15 +114,3 @@ export const siargaoExpected = {
     { from: "bea", to: "dan", amount: 25_000 },
   ],
 };
-
-export const categories = [
-  { id: "food", name: "Food & drink", icon: "utensils" },
-  { id: "groceries", name: "Groceries", icon: "shopping-basket" },
-  { id: "lodging", name: "Lodging", icon: "bed-double" },
-  { id: "transport", name: "Transport", icon: "car" },
-  { id: "activities", name: "Activities", icon: "ticket" },
-  { id: "utilities", name: "Utilities", icon: "zap" },
-  { id: "rent", name: "Rent", icon: "house" },
-  { id: "shopping", name: "Shopping", icon: "shopping-bag" },
-  { id: "other", name: "Other", icon: "receipt" },
-] as const;

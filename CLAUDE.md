@@ -70,6 +70,46 @@ in `docs/`. Read these before starting any feature:
    diagram and trade-offs, deploy, Lighthouse/accessibility pass.
 5. **Later:** recurring expenses, stats, receipt scanning (AI), installable PWA, push.
 
+## Project structure
+
+Organised by feature. Put new code in the folder its role says; don't add
+files to the root of `src/components` or `src/lib` for a single feature.
+
+```
+src/
+  app/                  Routes only: page/layout/route/loading/error files that
+                        compose features. No business logic, no big components.
+    (app)/              Signed-in pages (share the app shell layout)
+    api/                Route handlers (auth, trpc)
+  features/<feature>/   Everything for one feature: its components and client
+                        hooks. auth, groups, invites, expenses, balances,
+                        payments, activity. One component per file.
+  components/           Shared building blocks used by 2+ features
+    ui/                 shadcn/ui primitives (generated; lightly themed)
+    shell/              App chrome: sidebar, bottom tabs, page header
+  hooks/                Shared React hooks
+  lib/                  Pure TypeScript shared by client and server (no DB,
+                        no React): money/, categories, activity snapshots,
+                        validation schemas, palette, utils
+  server/               Server-only code ("server-only")
+    api/                tRPC: context, procedures, routers/<feature>.ts
+    services/           Business rules + database access, one file per feature.
+                        Routers and server components call these; nothing
+                        else talks to Prisma directly.
+    auth.ts, db.ts, session.ts
+  trpc/                 tRPC client wiring (React provider, server caller)
+  generated/            Prisma client (gitignored, `prisma generate`)
+  test/                 Vitest setup
+prisma/                 schema, migrations, seed.ts, sample-data.ts
+e2e/                    Playwright specs, one file per flow
+scripts/                Dev scripts (local Postgres)
+docs/, design/          Specs and screen designs (read-only references)
+```
+
+Conventions: kebab-case file names; unit tests next to the code
+(`*.test.ts`); amounts are minor-unit integers everywhere except at the
+display edge.
+
 ## Commands
 
 Package manager is **pnpm** (`npm i -g pnpm`; Node 26 has no corepack).

@@ -9,13 +9,13 @@ export type SplitMode = "EQUAL" | "SHARES" | "PERCENT" | "EXACT";
  * - PERCENT: basis points (10000 = 100%)
  * - EXACT: the amount in minor units
  */
-export type SplitInput = { userId: string; weight: number };
+export type SplitInput = { memberId: string; weight: number };
 
-export type Share = { userId: string; weight: number; amount: number };
+export type Share = { memberId: string; weight: number; amount: number };
 
 export type SplitError =
   | { code: "INVALID_AMOUNT" }
-  | { code: "INVALID_WEIGHT"; userId: string }
+  | { code: "INVALID_WEIGHT"; memberId: string }
   | { code: "NO_PARTICIPANTS" }
   /** `remaining` is in basis points: positive means still to assign. */
   | { code: "PERCENT_MISMATCH"; remaining: number }
@@ -52,10 +52,10 @@ export function allocateShares(
   }
   for (const input of inputs) {
     if (!isValidMinor(input.weight)) {
-      return fail({ code: "INVALID_WEIGHT", userId: input.userId });
+      return fail({ code: "INVALID_WEIGHT", memberId: input.memberId });
     }
     if (mode === "EQUAL" && input.weight > 1) {
-      return fail({ code: "INVALID_WEIGHT", userId: input.userId });
+      return fail({ code: "INVALID_WEIGHT", memberId: input.memberId });
     }
   }
 
@@ -93,7 +93,7 @@ export function allocateShares(
       (s, i) =>
         s.amount > floorShare(amount, participants[i]!.weight, totalWeight),
     )
-    .map((s) => s.userId);
+    .map((s) => s.memberId);
 
   return { ok: true, shares, roundedUp };
 }

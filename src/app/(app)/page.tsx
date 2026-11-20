@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { Suspense } from "react";
-import { GroupList, GroupListSkeleton } from "@/components/group-list";
+import { GroupList, GroupListSkeleton } from "@/features/groups/group-list";
 import { Money } from "@/components/money";
 import { MobileHeader, PageBody } from "@/components/shell/page-header";
 import { cn } from "@/lib/utils";
-import { getGroupSummaries, summarise } from "@/server/queries/groups";
+import { getGroupSummaries, summarise } from "@/server/services/groups";
 import { requireUser } from "@/server/session";
 
 export default function HomePage() {

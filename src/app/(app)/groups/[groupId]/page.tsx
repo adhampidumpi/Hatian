@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { ComingSoon } from "@/components/coming-soon";
 import { BalanceLabel } from "@/components/money";
 import { PageBody, PageTitle } from "@/components/shell/page-header";
-import { getGroupSummaries } from "@/server/queries/groups";
+import { getGroupSummaries } from "@/server/services/groups";
 import { requireUser } from "@/server/session";
 
 export default function GroupPage({ params }: PageProps<"/groups/[groupId]">) {

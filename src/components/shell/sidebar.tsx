@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { Logo } from "@/components/logo";
 import { formatCompact, formatMoney } from "@/lib/money/format";
 import { cn } from "@/lib/utils";
-import { getGroupSummaries } from "@/server/queries/groups";
+import { getGroupSummaries } from "@/server/services/groups";
 import { requireUser } from "@/server/session";
 import { AddExpenseShortcut } from "./add-expense-shortcut";
 import { ADD_EXPENSE_HREF } from "./nav-items";

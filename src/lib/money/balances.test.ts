@@ -4,7 +4,7 @@ import {
   siargaoExpected,
   siargaoExpenses,
   siargaoMembers,
-} from "../sample-data";
+} from "../../../prisma/sample-data";
 import {
   computeBalances,
   computePairwiseDebts,
@@ -25,7 +25,7 @@ const siargao: LedgerExpense[] = siargaoExpenses.map((e) => {
     "PHP",
     e.mode,
     memberIds.map((id) => ({
-      userId: id,
+      memberId: id,
       weight: e.participants.includes(id) ? 1 : 0,
     })),
   );
@@ -107,8 +107,8 @@ describe("computeBalances", () => {
         paidById: "a",
         amount: 1_000,
         shares: [
-          { userId: "a", amount: 500 },
-          { userId: "b", amount: 500 },
+          { memberId: "a", amount: 500 },
+          { memberId: "b", amount: 500 },
         ],
       },
     ];
@@ -123,9 +123,9 @@ describe("computePairwiseDebts", () => {
       {
         paidById: "a",
         amount: 1_000,
-        shares: [{ userId: "b", amount: 1_000 }],
+        shares: [{ memberId: "b", amount: 1_000 }],
       },
-      { paidById: "b", amount: 300, shares: [{ userId: "a", amount: 300 }] },
+      { paidById: "b", amount: 300, shares: [{ memberId: "a", amount: 300 }] },
     ];
     expect(computePairwiseDebts(expenses, [])).toEqual([
       { from: "b", to: "a", amount: 700 },
@@ -137,7 +137,7 @@ describe("computePairwiseDebts", () => {
       {
         paidById: "a",
         amount: 1_000,
-        shares: [{ userId: "a", amount: 1_000 }],
+        shares: [{ memberId: "a", amount: 1_000 }],
       },
     ];
     expect(computePairwiseDebts(expenses, [])).toEqual([]);
@@ -190,10 +190,10 @@ describe("simplifyDebts properties", () => {
       paidById: fc.constantFrom("a", "b", "c", "d"),
       shares: fc.uniqueArray(
         fc.record({
-          userId: fc.constantFrom("a", "b", "c", "d"),
+          memberId: fc.constantFrom("a", "b", "c", "d"),
           amount: fc.integer({ min: 1, max: 100_000 }),
         }),
-        { selector: (s) => s.userId, minLength: 1 },
+        { selector: (s) => s.memberId, minLength: 1 },
       ),
     });
     fc.assert(

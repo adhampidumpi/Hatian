@@ -26,16 +26,12 @@ model User {
   accounts Account[]
   sessions Session[]
 
-  memberships      GroupMember[]
-  groupsCreated    Group[]        @relation("GroupCreatedBy")
-  invitesCreated   GroupInvite[]
-  expensesPaid     Expense[]      @relation("ExpensePaidBy")
-  expensesCreated  Expense[]      @relation("ExpenseCreatedBy")
-  shares           ExpenseShare[]
-  paymentsSent     Payment[]      @relation("PaymentFrom")
-  paymentsReceived Payment[]      @relation("PaymentTo")
-  paymentsCreated  Payment[]      @relation("PaymentCreatedBy")
-  activities       Activity[]
+  memberships     GroupMember[]
+  groupsCreated   Group[]       @relation("GroupCreatedBy")
+  invitesCreated  GroupInvite[]
+  expensesCreated Expense[]     @relation("ExpenseCreatedBy")
+  paymentsCreated Payment[]     @relation("PaymentCreatedBy")
+  activities      Activity[]
 }
 
 model Account {
@@ -101,16 +97,35 @@ enum GroupRole {
   MEMBER
 }
 
+/// A person in a group. Expenses, shares and payments point at members, not
+/// users, so a friend can be added by name before they have an account
+/// (`userId` null, a "placeholder") and claim that member later through the
+/// invite link, keeping their history.
 model GroupMember {
-  groupId  String
-  userId   String
-  role     GroupRole @default(MEMBER)
-  joinedAt DateTime  @default(now())
+  id         String    @id @default(cuid())
+  groupId    String
+  /// Null until a real account joins as (or claims) this member.
+  userId     String?
+  /// Name shown in the group. For placeholders it's the only name there is.
+  name       String
+  role       GroupRole @default(MEMBER)
+  /// Fixed palette slot so a member keeps their avatar colour.
+  colorIndex Int
+  createdAt  DateTime  @default(now())
+  /// When an account joined or claimed this member.
+  joinedAt   DateTime?
+  /// Members with history are never deleted, only marked as removed.
+  removedAt  DateTime?
 
-  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group            Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user             User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  expensesPaid     Expense[]      @relation("ExpensePaidBy")
+  shares           ExpenseShare[]
+  paymentsSent     Payment[]      @relation("PaymentFrom")
+  paymentsReceived Payment[]      @relation("PaymentTo")
 
-  @@id([groupId, userId])
+  /// One member per account per group (several placeholders may have no user).
+  @@unique([groupId, userId])
   @@index([userId])
 }
 
@@ -145,32 +160,35 @@ enum SplitMode {
 }
 
 model Expense {
-  id          String    @id @default(cuid())
-  groupId     String
-  description String
-  categoryId  String?
-  date        DateTime  @db.Date
+  id               String    @id @default(cuid())
+  groupId          String
+  description      String
+  categoryId       String?
+  date             DateTime  @db.Date
   /// Amount in the group's currency, minor units.
-  amount      Int
-  currency    String    @db.Char(3)
+  amount           Int
+  currency         String    @db.Char(3)
   /// Set only when the expense was entered in another currency.
   originalAmount   Int?
-  originalCurrency String?  @db.Char(3)
+  originalCurrency String?   @db.Char(3)
   /// Units of group currency per 1 unit of original currency.
-  rate             Decimal? @db.Decimal(18, 8)
-  paidById    String
-  splitMode   SplitMode @default(EQUAL)
-  note        String?
-  receiptUrl  String?
-  createdById String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  rate             Decimal?  @db.Decimal(18, 8)
+  /// GroupMember who paid.
+  paidById         String
+  splitMode        SplitMode @default(EQUAL)
+  note             String?
+  receiptUrl       String?
+  createdById      String
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
   /// Soft delete so the activity log and undo keep working.
-  deletedAt   DateTime?
+  deletedAt        DateTime?
 
   group     Group          @relation(fields: [groupId], references: [id], onDelete: Cascade)
   category  Category?      @relation(fields: [categoryId], references: [id])
-  paidBy    User           @relation("ExpensePaidBy", fields: [paidById], references: [id])
+  // NoAction (checked at the end of the statement) so deleting a group can
+  // cascade to its members and expenses in any order.
+  paidBy    GroupMember    @relation("ExpensePaidBy", fields: [paidById], references: [id], onDelete: NoAction)
   createdBy User           @relation("ExpenseCreatedBy", fields: [createdById], references: [id])
   shares    ExpenseShare[]
 
@@ -179,18 +197,18 @@ model Expense {
 
 model ExpenseShare {
   expenseId String
-  userId    String
+  memberId  String
   /// Input that produced the share: share count (SHARES), basis points
-  /// (PERCENT, 10000 = 100%), 1 or 0 (EQUAL), or the amount itself (EXACT).
+  /// (PERCENT, 10000 = 100%), 1 (EQUAL), or the amount itself (EXACT).
   weight    Int
   /// Final share in minor units. Shares of an expense always sum to its amount.
   amount    Int
 
-  expense Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
-  user    User    @relation(fields: [userId], references: [id])
+  expense Expense     @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  member  GroupMember @relation(fields: [memberId], references: [id], onDelete: NoAction)
 
-  @@id([expenseId, userId])
-  @@index([userId])
+  @@id([expenseId, memberId])
+  @@index([memberId])
 }
 
 // ─── Payments ────────────────────────────────────────────────────────────────
@@ -206,7 +224,9 @@ enum PaymentMethod {
 model Payment {
   id          String        @id @default(cuid())
   groupId     String
+  /// GroupMember who paid.
   fromId      String
+  /// GroupMember who received.
   toId        String
   amount      Int
   currency    String        @db.Char(3)
@@ -217,10 +237,10 @@ model Payment {
   createdAt   DateTime      @default(now())
   deletedAt   DateTime?
 
-  group     Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  from      User  @relation("PaymentFrom", fields: [fromId], references: [id])
-  to        User  @relation("PaymentTo", fields: [toId], references: [id])
-  createdBy User  @relation("PaymentCreatedBy", fields: [createdById], references: [id])
+  group     Group       @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  from      GroupMember @relation("PaymentFrom", fields: [fromId], references: [id], onDelete: NoAction)
+  to        GroupMember @relation("PaymentTo", fields: [toId], references: [id], onDelete: NoAction)
+  createdBy User        @relation("PaymentCreatedBy", fields: [createdById], references: [id])
 
   @@index([groupId, date])
 }
@@ -228,22 +248,29 @@ model Payment {
 // ─── Activity ────────────────────────────────────────────────────────────────
 
 enum ActivityType {
+  GROUP_CREATED
+  GROUP_UPDATED
   EXPENSE_CREATED
   EXPENSE_UPDATED
   EXPENSE_DELETED
+  EXPENSE_RESTORED
   PAYMENT_RECORDED
   PAYMENT_DELETED
+  PAYMENT_RESTORED
+  MEMBER_ADDED
   MEMBER_JOINED
-  GROUP_UPDATED
+  MEMBER_REMOVED
 }
 
 model Activity {
   id        String       @id @default(cuid())
   groupId   String
+  /// The signed-in user who did it.
   actorId   String
   type      ActivityType
+  /// Expense, payment or member id, depending on `type`.
   entityId  String?
-  /// { before, after } for edits; a snapshot for creates and deletes.
+  /// Snapshots: { before?, after? }. See src/server/services/activity.ts.
   diff      Json?
   createdAt DateTime     @default(now())
 

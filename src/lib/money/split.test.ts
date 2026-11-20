@@ -9,9 +9,9 @@ describe("allocateShares", () => {
   describe("EQUAL", () => {
     it("splits ₱1,000.00 among 3 as 333.34 / 333.33 / 333.33", () => {
       const r = allocateShares(100_000, "PHP", "EQUAL", [
-        { userId: "a", weight: 1 },
-        { userId: "b", weight: 1 },
-        { userId: "c", weight: 1 },
+        { memberId: "a", weight: 1 },
+        { memberId: "b", weight: 1 },
+        { memberId: "c", weight: 1 },
       ]);
       expect(amounts(r)).toEqual([33_334, 33_333, 33_333]);
       expect(r.ok && r.roundedUp).toEqual(["a"]);
@@ -19,13 +19,13 @@ describe("allocateShares", () => {
 
     it("leaves out people with weight 0", () => {
       const r = allocateShares(234_000, "PHP", "EQUAL", [
-        { userId: "a", weight: 1 },
-        { userId: "b", weight: 0 },
-        { userId: "c", weight: 1 },
-        { userId: "d", weight: 1 },
-        { userId: "e", weight: 1 },
+        { memberId: "a", weight: 1 },
+        { memberId: "b", weight: 0 },
+        { memberId: "c", weight: 1 },
+        { memberId: "d", weight: 1 },
+        { memberId: "e", weight: 1 },
       ]);
-      expect(r.ok && r.shares.map((s) => s.userId)).toEqual([
+      expect(r.ok && r.shares.map((s) => s.memberId)).toEqual([
         "a",
         "c",
         "d",
@@ -37,26 +37,26 @@ describe("allocateShares", () => {
 
     it("rejects weights other than 0 or 1", () => {
       const r = allocateShares(100, "PHP", "EQUAL", [
-        { userId: "a", weight: 2 },
+        { memberId: "a", weight: 2 },
       ]);
       expect(r).toEqual({
         ok: false,
-        error: { code: "INVALID_WEIGHT", userId: "a" },
+        error: { code: "INVALID_WEIGHT", memberId: "a" },
       });
     });
 
     it("needs at least one participant", () => {
       const r = allocateShares(100, "PHP", "EQUAL", [
-        { userId: "a", weight: 0 },
+        { memberId: "a", weight: 0 },
       ]);
       expect(r).toEqual({ ok: false, error: { code: "NO_PARTICIPANTS" } });
     });
 
     it("handles zero-decimal currencies", () => {
       const r = allocateShares(1_000, "JPY", "EQUAL", [
-        { userId: "a", weight: 1 },
-        { userId: "b", weight: 1 },
-        { userId: "c", weight: 1 },
+        { memberId: "a", weight: 1 },
+        { memberId: "b", weight: 1 },
+        { memberId: "c", weight: 1 },
       ]);
       expect(amounts(r)).toEqual([334, 333, 333]);
     });
@@ -65,8 +65,8 @@ describe("allocateShares", () => {
   describe("SHARES", () => {
     it("gives a couple with 2 shares twice as much", () => {
       const r = allocateShares(300_000, "PHP", "SHARES", [
-        { userId: "couple", weight: 2 },
-        { userId: "solo", weight: 1 },
+        { memberId: "couple", weight: 2 },
+        { memberId: "solo", weight: 1 },
       ]);
       expect(amounts(r)).toEqual([200_000, 100_000]);
     });
@@ -77,9 +77,9 @@ describe("allocateShares", () => {
       // Exact: 4.2, 1.4, 1.4 → floors 4, 1, 1 and 1 unit left over.
       // dinero.js allocate() would give it to the 3-share; Hamilton gives it to b.
       const r = allocateShares(7, "PHP", "SHARES", [
-        { userId: "a", weight: 3 },
-        { userId: "b", weight: 1 },
-        { userId: "c", weight: 1 },
+        { memberId: "a", weight: 3 },
+        { memberId: "b", weight: 1 },
+        { memberId: "c", weight: 1 },
       ]);
       expect(amounts(r)).toEqual([4, 2, 1]);
       expect(r.ok && r.roundedUp).toEqual(["b"]);
@@ -87,9 +87,9 @@ describe("allocateShares", () => {
 
     it("never rounds up a share that is already whole (fast-check counterexample)", () => {
       const r = allocateShares(434_944_792, "PHP", "SHARES", [
-        { userId: "a", weight: 5 },
-        { userId: "b", weight: 1 },
-        { userId: "c", weight: 4 },
+        { memberId: "a", weight: 5 },
+        { memberId: "b", weight: 1 },
+        { memberId: "c", weight: 4 },
       ]);
       expect(amounts(r)).toEqual([217_472_396, 43_494_479, 173_977_917]);
     });
@@ -98,17 +98,17 @@ describe("allocateShares", () => {
   describe("PERCENT", () => {
     it("splits by basis points", () => {
       const r = allocateShares(100_001, "PHP", "PERCENT", [
-        { userId: "a", weight: 5_000 },
-        { userId: "b", weight: 3_000 },
-        { userId: "c", weight: 2_000 },
+        { memberId: "a", weight: 5_000 },
+        { memberId: "b", weight: 3_000 },
+        { memberId: "c", weight: 2_000 },
       ]);
       expect(amounts(r)).toEqual([50_001, 30_000, 20_000]);
     });
 
     it("reports how much is left when the total isn't 100%", () => {
       const r = allocateShares(100_000, "PHP", "PERCENT", [
-        { userId: "a", weight: 5_000 },
-        { userId: "b", weight: 2_500 },
+        { memberId: "a", weight: 5_000 },
+        { memberId: "b", weight: 2_500 },
       ]);
       expect(r).toEqual({
         ok: false,
@@ -120,16 +120,16 @@ describe("allocateShares", () => {
   describe("EXACT", () => {
     it("uses the amounts as given when they add up", () => {
       const r = allocateShares(50_000, "PHP", "EXACT", [
-        { userId: "a", weight: 12_000 },
-        { userId: "b", weight: 38_000 },
+        { memberId: "a", weight: 12_000 },
+        { memberId: "b", weight: 38_000 },
       ]);
       expect(amounts(r)).toEqual([12_000, 38_000]);
     });
 
     it("reports what's left to assign (₱120.00 left)", () => {
       const r = allocateShares(50_000, "PHP", "EXACT", [
-        { userId: "a", weight: 12_000 },
-        { userId: "b", weight: 26_000 },
+        { memberId: "a", weight: 12_000 },
+        { memberId: "b", weight: 26_000 },
       ]);
       expect(r).toEqual({
         ok: false,
@@ -139,7 +139,7 @@ describe("allocateShares", () => {
 
     it("reports over-assignment as negative", () => {
       const r = allocateShares(100, "PHP", "EXACT", [
-        { userId: "a", weight: 150 },
+        { memberId: "a", weight: 150 },
       ]);
       expect(r).toEqual({
         ok: false,
@@ -150,11 +150,11 @@ describe("allocateShares", () => {
 
   it("rejects weights that don't fit the database column", () => {
     const r = allocateShares(100, "PHP", "SHARES", [
-      { userId: "a", weight: 2 ** 31 },
+      { memberId: "a", weight: 2 ** 31 },
     ]);
     expect(r).toEqual({
       ok: false,
-      error: { code: "INVALID_WEIGHT", userId: "a" },
+      error: { code: "INVALID_WEIGHT", memberId: "a" },
     });
   });
 
@@ -162,7 +162,7 @@ describe("allocateShares", () => {
     "rejects amount %s",
     (amount) => {
       const r = allocateShares(amount, "PHP", "EQUAL", [
-        { userId: "a", weight: 1 },
+        { memberId: "a", weight: 1 },
       ]);
       expect(r).toEqual({ ok: false, error: { code: "INVALID_AMOUNT" } });
     },
@@ -185,7 +185,7 @@ describe("allocateShares", () => {
               : rawWeights;
           fc.pre(weights.some((w) => w > 0));
           const inputs = weights.map((weight, i) => ({
-            userId: `u${i}`,
+            memberId: `u${i}`,
             weight,
           }));
           const r = allocateShares(amount, "PHP", mode, inputs);

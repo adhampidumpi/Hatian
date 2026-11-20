@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ComingSoon } from "@/components/coming-soon";
-import { GroupList, GroupListSkeleton } from "@/components/group-list";
+import { GroupList, GroupListSkeleton } from "@/features/groups/group-list";
 import { PageBody, PageTitle } from "@/components/shell/page-header";
-import { getGroupSummaries } from "@/server/queries/groups";
+import { getGroupSummaries } from "@/server/services/groups";
 import { requireUser } from "@/server/session";
 
 export const metadata: Metadata = { title: "Groups" };
