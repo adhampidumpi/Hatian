@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { RecentActivity } from "@/features/activity/recent-activity";
 import { CreateGroupDialog } from "@/features/groups/create-group-dialog";
 import { GroupList, GroupListSkeleton } from "@/features/groups/group-list";
 import { Money } from "@/components/money";
@@ -92,6 +93,8 @@ async function HomeContent() {
           </p>
         )}
       </section>
+
+      {groups.length > 0 && <RecentActivity />}
     </>
   );
 }

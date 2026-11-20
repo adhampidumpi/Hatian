@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { RecentActivity } from "@/features/activity/recent-activity";
 import { RailSettleUp } from "@/features/balances/rail-settle-up";
 import { GroupExpenses } from "@/features/expenses/group-expenses";
 import { requireUser } from "@/server/session";
@@ -28,7 +29,12 @@ async function Expenses({
     <HydrateClient>
       <GroupExpenses
         groupId={groupId}
-        railExtras={<RailSettleUp groupId={groupId} />}
+        railExtras={
+          <>
+            <RailSettleUp groupId={groupId} />
+            <RecentActivity groupId={groupId} compact title="Activity" />
+          </>
+        }
       />
     </HydrateClient>
   );

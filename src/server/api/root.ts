@@ -1,4 +1,5 @@
 import "server-only";
+import { activityRouter } from "./routers/activity";
 import { expensesRouter } from "./routers/expenses";
 import { groupsRouter } from "./routers/groups";
 import { invitesRouter } from "./routers/invites";
@@ -11,6 +12,7 @@ export const appRouter = router({
   expenses: expensesRouter,
   invites: invitesRouter,
   payments: paymentsRouter,
+  activity: activityRouter,
 });
 
 export type AppRouter = typeof appRouter;
