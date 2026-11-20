@@ -143,7 +143,7 @@ export function describeActivity(
 }
 
 /** "Amount ₱2,140.00 → ₱2,340.00 · Dan removed from split" */
-export function expenseChanges(
+function expenseChanges(
   before: ExpenseSnapshot,
   after: ExpenseSnapshot,
   who: (memberId: string) => string,

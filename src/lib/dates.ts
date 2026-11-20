@@ -1,7 +1,7 @@
 import { format, parseISO } from "date-fns";
 
 /** "2026-11-14" → a Date at local midnight (no timezone shift). */
-export function fromIsoDate(iso: string): Date {
+function fromIsoDate(iso: string): Date {
   return parseISO(iso);
 }
 

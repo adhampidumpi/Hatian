@@ -17,12 +17,6 @@ export const categories = [
 
 export type CategoryId = (typeof categories)[number]["id"];
 
-export const DEFAULT_CATEGORY: CategoryId = "other";
-
-export function isCategoryId(id: string): id is CategoryId {
-  return categories.some((c) => c.id === id);
-}
-
 export const categoryNames: Record<string, string> = Object.fromEntries(
   categories.map((c) => [c.id, c.name]),
 );

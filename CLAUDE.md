@@ -59,9 +59,9 @@ in `docs/`. Read these before starting any feature:
 
 ## Build phases
 
-1. **Foundation:** scaffold, Docker Postgres, Prisma schema, Auth.js, design tokens in
+1. ✅ **Foundation:** scaffold, Docker Postgres, Prisma schema, Auth.js, design tokens in
    Tailwind, app shell (bottom tabs / sidebar), CI (lint, typecheck, test, build).
-2. **Core money:** groups + invite links, add/edit/delete expense with the 4 split
+2. ✅ **Core money:** groups + invite links, add/edit/delete expense with the 4 split
    modes, balances, settle up with the simplify toggle, record payment, activity log.
    Seed script with the Siargao Trip sample data from `docs/product-spec.md`.
 3. **Real-time + polish:** live updates and "X is adding an expense…" presence,
@@ -69,6 +69,16 @@ in `docs/`. Read these before starting any feature:
 4. **Portfolio finish:** demo account with seeded data, README with architecture
    diagram and trade-offs, deploy, Lighthouse/accessibility pass.
 5. **Later:** recurring expenses, stats, receipt scanning (AI), installable PWA, push.
+
+Decisions made in phase 2 (keep them):
+- Friends can be added by name (placeholder members) and claim their spot via the
+  invite link. Money points at `GroupMember`, never `User`.
+- Anyone in a group can edit or delete any expense; edits are logged before → after,
+  deletes are soft with Undo. Anyone can toggle Simplify debts.
+- Nobody leaves or is removed with a non-zero balance. Currency locks after the
+  first expense or payment (conversion is phase 3).
+- Receipt photos come with hosting in phase 4 (button shows "soon").
+- Remind opens the share sheet with a ready message (copies on desktop); no email.
 
 ## Project structure
 
