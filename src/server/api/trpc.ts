@@ -18,6 +18,12 @@ export type TRPCContext = Awaited<ReturnType<typeof createTRPCContext>>;
 
 const t = initTRPC.context<TRPCContext>().create({
   transformer: superjson,
+  // Live updates use server-sent events; pings keep idle connections (and
+  // proxies in between) open, and the client reconnects if they stop.
+  sse: {
+    ping: { enabled: true, intervalMs: 15_000 },
+    client: { reconnectAfterInactivityMs: 30_000 },
+  },
   errorFormatter({ shape, error }) {
     return {
       ...shape,

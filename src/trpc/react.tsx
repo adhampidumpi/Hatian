@@ -4,7 +4,9 @@ import { QueryClientProvider, type QueryClient } from "@tanstack/react-query";
 import {
   createTRPCClient,
   httpBatchStreamLink,
+  httpSubscriptionLink,
   loggerLink,
+  splitLink,
 } from "@trpc/client";
 import { createTRPCContext } from "@trpc/tanstack-react-query";
 import { useState } from "react";
@@ -31,9 +33,17 @@ export function TRPCReactProvider({ children }: { children: React.ReactNode }) {
     createTRPCClient<AppRouter>({
       links: [
         loggerLink({ enabled: () => process.env.NODE_ENV === "development" }),
-        httpBatchStreamLink({
-          transformer: superjson,
-          url: "/api/trpc",
+        // Subscriptions (live updates) stream over server-sent events.
+        splitLink({
+          condition: (op) => op.type === "subscription",
+          true: httpSubscriptionLink({
+            transformer: superjson,
+            url: "/api/trpc",
+          }),
+          false: httpBatchStreamLink({
+            transformer: superjson,
+            url: "/api/trpc",
+          }),
         }),
       ],
     }),

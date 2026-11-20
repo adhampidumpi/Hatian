@@ -3,6 +3,7 @@ import { activityRouter } from "./routers/activity";
 import { expensesRouter } from "./routers/expenses";
 import { groupsRouter } from "./routers/groups";
 import { invitesRouter } from "./routers/invites";
+import { liveRouter } from "./routers/live";
 import { paymentsRouter } from "./routers/payments";
 import { createCallerFactory, router } from "./trpc";
 
@@ -13,6 +14,7 @@ export const appRouter = router({
   invites: invitesRouter,
   payments: paymentsRouter,
   activity: activityRouter,
+  live: liveRouter,
 });
 
 export type AppRouter = typeof appRouter;

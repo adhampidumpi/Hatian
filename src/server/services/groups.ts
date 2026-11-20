@@ -12,6 +12,7 @@ import { requireMembership } from "./access";
 import { logActivity } from "./activity-log";
 import { conflict, forbidden } from "./errors";
 import { balanceOf, loadLedger } from "./ledger";
+import { publish } from "../realtime/bus";
 
 export type GroupSummary = {
   id: string;
@@ -265,6 +266,7 @@ export async function deleteGroup(userId: string, groupId: string) {
     db.expense.deleteMany({ where: { groupId } }),
     db.payment.deleteMany({ where: { groupId } }),
     db.group.delete({ where: { id: groupId } }),
+    publish({ type: "changed", groupId, actorUserId: userId }),
   ]);
 }
 

@@ -5,6 +5,7 @@ import { requireMembership } from "./access";
 import { logActivity } from "./activity-log";
 import { badRequest, conflict, forbidden, notFound } from "./errors";
 import { balanceOf } from "./ledger";
+import { publish } from "../realtime/bus";
 
 async function assertNameFree(
   groupId: string,
@@ -69,7 +70,10 @@ export async function renameMember(
     throw forbidden("People with an account choose their own name.");
   }
   await assertNameFree(groupId, name, memberId);
-  await db.groupMember.update({ where: { id: memberId }, data: { name } });
+  await db.$transaction(async (tx) => {
+    await tx.groupMember.update({ where: { id: memberId }, data: { name } });
+    await publish({ type: "changed", groupId, actorUserId: userId }, tx);
+  });
 }
 
 /**

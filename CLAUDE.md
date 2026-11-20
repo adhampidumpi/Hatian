@@ -146,6 +146,12 @@ Notes:
   server terminal; "Try the demo account" signs in as `demo@hatian.app`.
 - Don't use `prisma dev` for local Postgres: its PGlite server drops connections when a
   test server is killed and fails to restart. `pnpm db:local` runs real Postgres instead.
+- `pnpm build` and `pnpm typecheck` write into `.next`; with `pnpm dev` running, the dev
+  server sees that as edits and reloads the page. Expect it, or stop dev first.
+- Live updates: Postgres LISTEN/NOTIFY + tRPC SSE (`src/server/realtime/bus.ts`).
+  `logActivity` publishes inside the transaction. LISTEN needs a direct connection:
+  set `DATABASE_URL_UNPOOLED` if `DATABASE_URL` goes through a pooler (Neon's
+  pooled URL).
 - Prisma is pinned to **7.10.1** (the `latest` tag points at an 8.0 RC with a new
   architecture). The client is generated to `src/generated/prisma` on install.
 
