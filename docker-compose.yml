@@ -1,0 +1,20 @@
+# Optional local Postgres for people with Docker.
+# DATABASE_URL="postgresql://hatian:hatian@localhost:5432/hatian"
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: hatian
+      POSTGRES_PASSWORD: hatian
+      POSTGRES_DB: hatian
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hatian"]
+      interval: 5s
+      retries: 10
+
+volumes:
+  pgdata:
