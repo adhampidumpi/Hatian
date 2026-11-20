@@ -72,4 +72,37 @@ in `docs/`. Read these before starting any feature:
 
 ## Commands
 
-(Fill in once the project is scaffolded.)
+Package manager is **pnpm** (`npm i -g pnpm`; Node 26 has no corepack).
+`pnpm dlx` fails on this machine; use `npx` for one-off CLIs (e.g. `npx shadcn@latest add …`).
+
+| Command | What it does |
+|---|---|
+| `pnpm dev` | Dev server on http://localhost:3000 |
+| `pnpm build` / `pnpm start` | Production build / serve it |
+| `pnpm lint` | ESLint (Next + TypeScript + Prettier compat) |
+| `pnpm format` / `pnpm format:check` | Prettier (Markdown and `design/` are ignored) |
+| `pnpm typecheck` | `next typegen` then `tsc --noEmit` |
+| `pnpm test` | Vitest unit tests (`src/**/*.test.ts`) |
+| `pnpm e2e` | Playwright against `pnpm start` on port 3100; build first and seed the DB |
+| `pnpm db:local` | Local Postgres without Docker (`prisma dev`, PGlite) |
+| `pnpm db:migrate` | Create/apply a migration (`prisma migrate dev`) |
+| `pnpm db:deploy` | Apply migrations (CI / production) |
+| `pnpm db:seed` | Wipe groups and seed the demo data (dev/demo DBs only) |
+| `pnpm db:studio` | Prisma Studio |
+
+Notes:
+- Copy `.env.example` to `.env`. Without `AUTH_RESEND_KEY`, magic links print to the dev
+  server terminal; "Try the demo account" signs in as `demo@hatian.app`.
+- The `prisma dev` database handles one connection well: stop `pnpm dev` before
+  `pnpm e2e`, run e2e with `--workers=1`, and restart it (`pnpm prisma dev stop hatian`,
+  then `pnpm db:local`) if you see "Connection terminated unexpectedly".
+- Prisma is pinned to **7.10.1** (the `latest` tag points at an 8.0 RC with a new
+  architecture). The client is generated to `src/generated/prisma` on install.
+
+## Next.js 16 gotchas (Cache Components is on)
+
+- Anything that reads the request (session, `searchParams`, `params`, `usePathname()` on
+  dynamic routes) must sit inside `<Suspense>`; layouts must not read the session.
+- Get the user with `requireUser()` from `src/server/session.ts` (it calls `connection()`
+  before `auth()`; Auth.js uses crypto first, which prerendering rejects).
+- Middleware is now `proxy.ts`. We don't use it: pages authorise via `requireUser()`.
