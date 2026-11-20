@@ -1,0 +1,6 @@
+pnpm-lock.yaml
+design/
+.next/
+next-env.d.ts
+src/generated/
+*.md
