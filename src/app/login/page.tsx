@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { authOptions } from "@/server/auth";
+import { safeCallbackPath } from "@/lib/validation/invites";
 import { getSessionUser } from "@/server/session";
 import { signInAsDemo, signInWithGoogle } from "@/features/auth/actions";
 import { EmailForm } from "@/features/auth/email-form";
@@ -41,7 +42,7 @@ export default function LoginPage({ searchParams }: PageProps<"/login">) {
         className="flex min-h-[188px] flex-col gap-4 rounded-[20px] border border-line bg-card p-5"
       >
         <Suspense fallback={<OptionsSkeleton />}>
-          <SignInOptions />
+          <SignInOptions searchParams={searchParams} />
         </Suspense>
       </section>
     </main>
@@ -52,9 +53,17 @@ export default function LoginPage({ searchParams }: PageProps<"/login">) {
  * Rendered per request, not prerendered: which providers are on depends on
  * runtime environment variables, and signed-in visitors are sent home.
  */
-async function SignInOptions() {
+async function SignInOptions({
+  searchParams,
+}: {
+  searchParams: PageProps<"/login">["searchParams"];
+}) {
   await connection();
-  if (await getSessionUser()) redirect("/");
+  const callbackUrl = safeCallbackPath((await searchParams).callbackUrl) ?? "/";
+  if (await getSessionUser()) redirect(callbackUrl);
+  const returnTo = (
+    <input type="hidden" name="callbackUrl" value={callbackUrl} />
+  );
 
   const { email, google, demo } = authOptions;
   if (!email && !google && !demo) {
@@ -67,7 +76,7 @@ async function SignInOptions() {
 
   return (
     <>
-      {email && <EmailForm />}
+      {email && <EmailForm callbackUrl={callbackUrl} />}
 
       {email && (google || demo) && (
         <div className="flex items-center gap-3 text-[13px] text-ink-3">
@@ -79,6 +88,7 @@ async function SignInOptions() {
 
       {google && (
         <form action={signInWithGoogle}>
+          {returnTo}
           <Button type="submit" variant="outline" size="lg" className="w-full">
             Continue with Google
           </Button>
@@ -87,6 +97,7 @@ async function SignInOptions() {
 
       {demo && (
         <form action={signInAsDemo}>
+          {returnTo}
           <Button
             type="submit"
             variant="secondary"

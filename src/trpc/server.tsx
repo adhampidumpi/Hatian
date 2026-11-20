@@ -11,6 +11,7 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import { appRouter } from "@/server/api/root";
 import { createTRPCContext } from "@/server/api/trpc";
+import { AppError } from "@/server/services/errors";
 import { makeQueryClient } from "./query-client";
 
 /** One QueryClient per request, shared by every server component in it. */
@@ -51,7 +52,11 @@ export async function fetchOrNotFound<
   try {
     return await getQueryClient().fetchQuery(queryOptions);
   } catch (error) {
-    if (error instanceof TRPCError && error.code === "NOT_FOUND") notFound();
+    // Only the app's own "not found" (a missing or inaccessible record);
+    // tRPC also uses NOT_FOUND for an unknown procedure, which is a bug.
+    if (error instanceof TRPCError && error.cause instanceof AppError) {
+      if (error.cause.code === "NOT_FOUND") notFound();
+    }
     throw error;
   }
 }

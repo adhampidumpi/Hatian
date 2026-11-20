@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { PageBody, SubPageHeader } from "@/components/shell/page-header";
 import { GroupSettings } from "@/features/groups/group-settings";
+import { InviteSettings } from "@/features/invites/invite-settings";
 import { requireUser } from "@/server/session";
 import { fetchOrNotFound, HydrateClient, trpc } from "@/trpc/server";
 
@@ -37,7 +38,10 @@ async function Settings({
         title="Group settings"
         subtitle={group.name}
       />
-      <GroupSettings groupId={groupId} />
+      <GroupSettings
+        groupId={groupId}
+        invite={<InviteSettings groupId={groupId} groupName={group.name} />}
+      />
     </HydrateClient>
   );
 }

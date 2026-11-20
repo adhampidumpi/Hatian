@@ -6,11 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signInWithEmail } from "./actions";
 
-export function EmailForm() {
+export function EmailForm({ callbackUrl }: { callbackUrl: string }) {
   const [state, action, pending] = useActionState(signInWithEmail, undefined);
 
   return (
     <form action={action} className="flex flex-col gap-3" noValidate>
+      <input type="hidden" name="callbackUrl" value={callbackUrl} />
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="email" className="text-[13px] text-ink-2">
           Email

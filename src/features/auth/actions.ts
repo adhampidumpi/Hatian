@@ -3,6 +3,7 @@
 import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+import { safeCallbackPath } from "@/lib/validation/invites";
 import { authOptions, EMAIL_LINK_MAX_AGE, signIn } from "@/server/auth";
 import { db } from "@/server/db";
 
@@ -43,7 +44,7 @@ export async function signInWithEmail(
 
   try {
     // Redirects to /login/check-email on success.
-    await signIn("resend", { email, redirectTo: "/" });
+    await signIn("resend", { email, redirectTo: callbackFrom(formData) });
   } catch (error) {
     if (error instanceof AuthError) {
       return { error: "We couldn't send the link. Try again in a moment." };
@@ -52,23 +53,28 @@ export async function signInWithEmail(
   }
 }
 
-export async function signInWithGoogle() {
+export async function signInWithGoogle(formData: FormData) {
   if (!authOptions.google) redirect("/login");
-  await signInOrShowError("google");
+  await signInOrShowError("google", callbackFrom(formData));
 }
 
-export async function signInAsDemo() {
+export async function signInAsDemo(formData: FormData) {
   if (!authOptions.demo) redirect("/login");
-  await signInOrShowError("demo");
+  await signInOrShowError("demo", callbackFrom(formData));
+}
+
+/** The page to return to after signing in (e.g. an invite link). */
+function callbackFrom(formData: FormData) {
+  return safeCallbackPath(formData.get("callbackUrl")) ?? "/";
 }
 
 /**
  * Server-action sign-in re-throws Auth.js errors instead of redirecting to
  * the error page, so map them to /login?error=… ourselves.
  */
-async function signInOrShowError(provider: string) {
+async function signInOrShowError(provider: string, redirectTo: string) {
   try {
-    await signIn(provider, { redirectTo: "/" });
+    await signIn(provider, { redirectTo });
   } catch (error) {
     if (error instanceof AuthError) {
       redirect(`/login?error=${encodeURIComponent(error.type)}`);
