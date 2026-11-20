@@ -2,7 +2,7 @@ import { Plus } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { Logo } from "@/components/logo";
-import { formatMoney } from "@/lib/money/format";
+import { formatCompact, formatMoney } from "@/lib/money/format";
 import { cn } from "@/lib/utils";
 import { getGroupSummaries } from "@/server/queries/groups";
 import { requireUser } from "@/server/session";
@@ -43,10 +43,11 @@ export function Sidebar() {
           >
             Groups
           </h2>
+          {/* 44px target; negative margin keeps the header row compact. */}
           <Link
             href="/groups"
-            aria-label="All groups"
-            className="flex size-8 items-center justify-center rounded-lg text-ink-2 hover:bg-line-soft"
+            aria-label="New group"
+            className="-my-1.5 -mr-1.5 flex size-11 items-center justify-center rounded-lg text-ink-2 hover:bg-line-soft"
           >
             <Plus size={18} strokeWidth={2} aria-hidden />
           </Link>
@@ -103,14 +104,14 @@ function CompactBalance({
     return <span className="text-[12px] text-ink-3">settled</span>;
   }
   const owed = amount > 0;
-  const text = formatMoney(Math.abs(amount), currency)
-    .replace(/[^\d.,]/g, "")
-    .replace(/\.\d+$/, "");
   return (
     <span className={cn("amount text-[13px]", owed ? "text-owed" : "text-owe")}>
-      <span className="sr-only">{owed ? "you're owed " : "you owe "}</span>
-      <span aria-hidden>{owed ? "+" : "−"}</span>
-      {text}
+      <span aria-hidden>{formatCompact(amount, currency)}</span>
+      {/* Exact amount for screen readers; the visible one is rounded. */}
+      <span className="sr-only">
+        {owed ? "you're owed " : "you owe "}
+        {formatMoney(Math.abs(amount), currency)}
+      </span>
     </span>
   );
 }

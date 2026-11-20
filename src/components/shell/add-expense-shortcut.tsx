@@ -9,7 +9,9 @@ export function AddExpenseShortcut() {
   const router = useRouter();
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key.toLowerCase() !== "n") return;
+      // `key` can be missing on synthetic events (e.g. browser autofill).
+      if (typeof event.key !== "string" || event.key.toLowerCase() !== "n")
+        return;
       if (event.metaKey || event.ctrlKey || event.altKey || event.repeat)
         return;
       const target = event.target as HTMLElement | null;

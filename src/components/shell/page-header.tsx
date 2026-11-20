@@ -21,9 +21,10 @@ export function MobileHeader() {
         </button>
         <Link
           href="/account"
-          aria-label="Your account"
           className="flex size-11 items-center justify-center"
         >
+          {/* Initials are decorative; the name comes from this text. */}
+          <span className="sr-only">Your account</span>
           <Suspense fallback={<AvatarCircle text="" />}>
             <UserAvatar />
           </Suspense>
@@ -42,6 +43,7 @@ function AvatarCircle({ text }: { text: string }) {
   const colors = memberColors(0);
   return (
     <span
+      aria-hidden
       className="flex size-[34px] items-center justify-center rounded-full text-[13px] font-semibold"
       style={{ background: colors.bg, color: colors.fg }}
     >
