@@ -27,6 +27,17 @@ export function formatMoney(
     .replace("-", MINUS);
 }
 
+/** Plain decimal for files and inputs, no symbol or grouping: "12500.00". */
+export function formatDecimal(amount: number, currency: string): string {
+  const exponent = currencyExponent(currency);
+  const sign = amount < 0 ? "-" : "";
+  const abs = Math.abs(amount);
+  if (exponent === 0) return `${sign}${abs}`;
+  const unit = 10 ** exponent;
+  const fraction = String(abs % unit).padStart(exponent, "0");
+  return `${sign}${Math.floor(abs / unit)}.${fraction}`;
+}
+
 /**
  * Short signed balance without the currency symbol, for tight spaces like the
  * sidebar: "+13,753", "−2,450". Rounds to whole units, except that amounts
