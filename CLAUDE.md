@@ -1,5 +1,6 @@
 # Hatian — expense splitter (portfolio project)
-n@AGENTS.md
+
+@AGENTS.md
 
 Hatian (Tagalog for "a split") is a full-stack web app for splitting shared expenses
 with friends, housemates and trip groups, in the spirit of Splitwise. It is a
