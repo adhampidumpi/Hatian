@@ -96,3 +96,17 @@ export function parseAmount(input: string, currency: string): number | null {
     Number(fraction.padEnd(exponent, "0") || "0");
   return Number.isSafeInteger(minor) && minor <= MAX_MINOR ? minor : null;
 }
+
+const currencyNames = new Intl.DisplayNames(["en"], { type: "currency" });
+
+/** "US Dollar" for USD. */
+export function currencyName(code: string): string {
+  return currencyNames.of(code) ?? code;
+}
+
+/** A stored rate for display: "63.813", "0.39817", "16,712.5". */
+export function formatRate(rate: string, locale = "en-PH"): string {
+  return new Intl.NumberFormat(locale, {
+    maximumSignificantDigits: 6,
+  }).format(Number(rate));
+}

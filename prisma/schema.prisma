@@ -172,7 +172,7 @@ model Expense {
   originalAmount   Int?
   originalCurrency String?   @db.Char(3)
   /// Units of group currency per 1 unit of original currency.
-  rate             Decimal?  @db.Decimal(18, 8)
+  rate             Decimal?  @db.Decimal(20, 10)
   /// GroupMember who paid.
   paidById         String
   splitMode        SplitMode @default(EQUAL)
@@ -288,7 +288,7 @@ model CurrencyRate {
   base      String   @db.Char(3)
   quote     String   @db.Char(3)
   date      DateTime @db.Date
-  rate      Decimal  @db.Decimal(18, 8)
+  rate      Decimal  @db.Decimal(20, 10)
   fetchedAt DateTime @default(now())
 
   @@id([base, quote, date])

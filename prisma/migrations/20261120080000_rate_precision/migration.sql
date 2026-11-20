@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "CurrencyRate" ALTER COLUMN "rate" SET DATA TYPE DECIMAL(20,10);
+
+-- AlterTable
+ALTER TABLE "Expense" ALTER COLUMN "rate" SET DATA TYPE DECIMAL(20,10);
+

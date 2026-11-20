@@ -4,7 +4,11 @@
  * server components can catch them too. Messages are safe to show users.
  */
 export type AppErrorCode =
-  "NOT_FOUND" | "FORBIDDEN" | "BAD_REQUEST" | "CONFLICT";
+  | "NOT_FOUND"
+  | "FORBIDDEN"
+  | "BAD_REQUEST"
+  | "CONFLICT"
+  | "SERVICE_UNAVAILABLE";
 
 export class AppError extends Error {
   constructor(
@@ -26,3 +30,7 @@ export const conflict = (message: string) => new AppError("CONFLICT", message);
 
 export const forbidden = (message: string) =>
   new AppError("FORBIDDEN", message);
+
+/** Something we depend on (the exchange-rate API) didn't answer. */
+export const unavailable = (message: string) =>
+  new AppError("SERVICE_UNAVAILABLE", message);

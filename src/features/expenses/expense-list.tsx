@@ -57,8 +57,8 @@ export function ExpenseList({
                       <span className="mt-px block text-[13px] text-ink-3">
                         {payer ? memberLabel(payer) : "Someone"} paid{" "}
                         <Money
-                          amount={expense.amount}
-                          currency={group.currency}
+                          amount={expense.originalAmount ?? expense.amount}
+                          currency={expense.originalCurrency ?? group.currency}
                         />
                       </span>
                     </span>

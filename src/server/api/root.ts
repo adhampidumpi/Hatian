@@ -5,6 +5,7 @@ import { groupsRouter } from "./routers/groups";
 import { invitesRouter } from "./routers/invites";
 import { liveRouter } from "./routers/live";
 import { paymentsRouter } from "./routers/payments";
+import { ratesRouter } from "./routers/rates";
 import { createCallerFactory, router } from "./trpc";
 
 /** All API routes. Add each feature's router here. */
@@ -15,6 +16,7 @@ export const appRouter = router({
   payments: paymentsRouter,
   activity: activityRouter,
   live: liveRouter,
+  rates: ratesRouter,
 });
 
 export type AppRouter = typeof appRouter;

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { categories } from "../categories";
+import { isRateCurrency } from "../money/convert";
 import { isValidMinor } from "../money/currency";
 import { groupIdSchema } from "./groups";
 
@@ -13,7 +14,8 @@ export const isoDateSchema = z
 /**
  * What the expense form sends. Shares are NOT sent: the server recomputes
  * them from the amount, mode and weights with the same allocateShares the
- * form previews with, so they always add up.
+ * form previews with, so they always add up. `amount` (and EXACT weights)
+ * are in `currency`, the group's unless the expense was paid in another.
  */
 export const expenseInputSchema = groupIdSchema.extend({
   description: z
@@ -24,6 +26,7 @@ export const expenseInputSchema = groupIdSchema.extend({
   categoryId: z.enum(categoryIds),
   date: isoDateSchema,
   amount: z.number().int().refine(isValidMinor, "Enter an amount."),
+  currency: z.string().refine(isRateCurrency, "Pick a currency.").optional(),
   paidById: z.string().min(1),
   splitMode: z.enum(["EQUAL", "SHARES", "PERCENT", "EXACT"]),
   weights: z
@@ -51,3 +54,9 @@ export const updateExpenseSchema = expenseInputSchema.extend({
   expenseId: z.string().min(1),
 });
 export type UpdateExpenseInput = z.infer<typeof updateExpenseSchema>;
+
+export const rateInputSchema = z.object({
+  base: z.string().refine(isRateCurrency),
+  quote: z.string().refine(isRateCurrency),
+  date: isoDateSchema,
+});

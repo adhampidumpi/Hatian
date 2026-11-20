@@ -31,6 +31,8 @@ export async function exportGroupCsv(userId: string, groupId: string) {
     "Category",
     "Paid by",
     `Amount (${group.currency})`,
+    "Paid in",
+    "Exchange rate",
     "Split",
     ...group.members.map((m) => `${m.name}'s share`),
   ];
@@ -42,6 +44,10 @@ export async function exportGroupCsv(userId: string, groupId: string) {
       categoryNames[e.categoryId ?? "other"] ?? "Other",
       nameOf.get(e.paidById) ?? "",
       money(e.amount),
+      e.originalCurrency && e.originalAmount !== null
+        ? `${formatDecimal(e.originalAmount, e.originalCurrency)} ${e.originalCurrency}`
+        : "",
+      e.rate ?? "",
       e.splitMode.toLowerCase(),
       ...group.members.map((m) => money(share.get(m.id) ?? 0)),
     ];

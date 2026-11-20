@@ -27,7 +27,9 @@ export default function HomePage() {
 async function HomeContent() {
   const user = await requireUser();
   const groups = await getGroupSummaries(user.id);
-  const { owed, owe, net, currency } = summarise(groups);
+  const { owed, owe, net, currency, approximate, leftOut } =
+    await summarise(groups);
+  const about = approximate ? "≈ " : "";
 
   return (
     <>
@@ -42,32 +44,38 @@ async function HomeContent() {
               ? "Overall, you owe"
               : "Overall, you're settled up"}
         </p>
-        <Money
-          amount={Math.abs(net)}
-          currency={currency}
+        <p
           className={cn(
-            "mt-1.5 block amount-lg text-[36px] font-medium",
+            "mt-1.5 amount-lg text-[36px] font-medium",
             net > 0 ? "text-owed" : net < 0 ? "text-owe" : "text-ink",
           )}
-        />
+        >
+          {about}
+          <Money amount={Math.abs(net)} currency={currency} />
+        </p>
         <div className="mt-[18px] grid grid-cols-2 gap-3 border-t border-dashed border-line-strong pt-4">
           <div>
             <p className="text-[13px] text-ink-3">You&apos;re owed</p>
-            <Money
-              amount={owed}
-              currency={currency}
-              className="mt-0.5 block text-[17px] font-medium text-owed"
-            />
+            <p className="mt-0.5 amount text-[17px] font-medium text-owed">
+              {about}
+              <Money amount={owed} currency={currency} />
+            </p>
           </div>
           <div>
             <p className="text-[13px] text-ink-3">You owe</p>
-            <Money
-              amount={owe}
-              currency={currency}
-              className="mt-0.5 block text-[17px] font-medium text-owe"
-            />
+            <p className="mt-0.5 amount text-[17px] font-medium text-owe">
+              {about}
+              <Money amount={owe} currency={currency} />
+            </p>
           </div>
         </div>
+        {(approximate || leftOut > 0) && (
+          <p className="mt-3 text-[13px] text-ink-3">
+            {leftOut > 0
+              ? `Leaves out ${leftOut === 1 ? "a group" : `${leftOut} groups`} in other currencies: exchange rates are unavailable right now.`
+              : `Groups in other currencies are converted to ${currency} at today's rate.`}
+          </p>
+        )}
       </section>
 
       <section aria-labelledby="groups-heading">

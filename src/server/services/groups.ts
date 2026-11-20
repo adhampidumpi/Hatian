@@ -2,6 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { isoDate } from "@/lib/activity";
 import { computeBalances } from "@/lib/money/balances";
+import { convertMinor } from "@/lib/money/convert";
 import type {
   CreateGroupInput,
   UpdateGroupInput,
@@ -12,6 +13,7 @@ import { requireMembership } from "./access";
 import { logActivity } from "./activity-log";
 import { conflict, forbidden } from "./errors";
 import { balanceOf, loadLedger } from "./ledger";
+import { getRate } from "./rates";
 import { publish } from "../realtime/bus";
 
 export type GroupSummary = {
@@ -326,16 +328,53 @@ export function displayNameFor(user: Pick<CurrentUser, "name" | "email">) {
 }
 
 /**
- * Totals for the Home summary card. Groups may use different currencies;
- * until multi-currency lands (phase 3) only the given currency is summed.
+ * Totals for the Home summary card, in the currency most of your groups
+ * use. Balances in other currencies are converted at today's rate, which
+ * makes the totals approximate; any that can't be (no rate) are left out.
  */
-export function summarise(groups: GroupSummary[], currency = "PHP") {
-  const inCurrency = groups.filter((g) => g.currency === currency);
-  const owed = inCurrency
-    .filter((g) => g.myBalance > 0)
-    .reduce((sum, g) => sum + g.myBalance, 0);
-  const owe = inCurrency
-    .filter((g) => g.myBalance < 0)
-    .reduce((sum, g) => sum - g.myBalance, 0);
-  return { currency, owed, owe, net: owed - owe };
+export async function summarise(groups: GroupSummary[]) {
+  const counts = new Map<string, number>();
+  for (const g of groups)
+    counts.set(g.currency, (counts.get(g.currency) ?? 0) + 1);
+  const currency = [...counts].sort((a, b) => b[1] - a[1])[0]?.[0] ?? "PHP";
+
+  const today = isoDate(new Date());
+  const others = [
+    ...new Set(
+      groups
+        .filter((g) => g.myBalance !== 0 && g.currency !== currency)
+        .map((g) => g.currency),
+    ),
+  ];
+  const rates = new Map(
+    await Promise.all(
+      others.map(async (code) => {
+        const rate = await getRate(code, currency, today).catch(() => null);
+        return [code, rate] as const;
+      }),
+    ),
+  );
+
+  let owed = 0;
+  let owe = 0;
+  let leftOut = 0;
+  for (const g of groups) {
+    const rate = g.currency === currency ? "1" : rates.get(g.currency);
+    const amount =
+      g.myBalance === 0 || !rate
+        ? null
+        : convertMinor(Math.abs(g.myBalance), g.currency, currency, rate);
+    if (amount === null) {
+      if (g.myBalance !== 0) leftOut += 1;
+    } else if (g.myBalance > 0) owed += amount;
+    else owe += amount;
+  }
+  return {
+    currency,
+    owed,
+    owe,
+    net: owed - owe,
+    approximate: others.length > 0,
+    leftOut,
+  };
 }

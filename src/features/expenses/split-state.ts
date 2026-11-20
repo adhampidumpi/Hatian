@@ -59,7 +59,9 @@ export function initialSplit(
     if (existing.mode === "SHARES") state.shares[id] = share?.weight ?? 0;
     if (existing.mode === "PERCENT") state.percent[id] = share?.weight ?? 0;
     if (existing.mode === "EXACT") {
-      state.exact[id] = share ? formatDecimal(share.amount, currency) : "";
+      // The weight, not the amount: for an expense paid in another currency
+      // the amount is converted, the weight is what was typed.
+      state.exact[id] = share ? formatDecimal(share.weight, currency) : "";
     }
   }
   return state;

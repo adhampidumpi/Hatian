@@ -18,7 +18,7 @@ before writing any feature from scratch. Both are MIT licensed.
 | Balances | Computed from expenses on read | Materialized `Balance` / `GroupBalance` tables per pair and currency | Compute on read first; materialize only if needed (note the trade-off in README) |
 | Settle-up suggestions | Greedy match of biggest creditor/debtor with a **stable comparator**, so paying one suggestion doesn't reshuffle the rest | Min-cash-flow (`simplifyDebts`), **toggle per group** | Greedy + stable ordering, with SplitPro's per-group toggle |
 | Responsive UX | `useMediaQuery`: vaul Drawer on mobile, Dialog on desktop | Bottom nav `< lg`, side nav `lg+`; vaul drawers for pickers | Both patterns |
-| Currency | Per-expense original amount + conversion rate | Frankfurter / Open Exchange Rates, cached rates table | Frankfurter, cached rates table |
+| Currency | Per-expense original amount + conversion rate | Frankfurter / Open Exchange Rates, cached rates table | Frankfurter (`api.frankfurter.dev/v1`, the ECB's 30 currencies), cached per pair and day in `CurrencyRate` (today's rate rechecked hourly until published). Split checked in the paid currency, then converted with largest remainder |
 | Activity log | `Activity` table (create/update/delete expense…) | Notifications + push | Activity table, streamed live |
 | Real-time | None | None | **Hatian's differentiator** |
 | Extras | Receipt scan (OpenAI vision), stats, recurring, CSV export, i18n | PWA (Serwist), web push, recurring (pg_cron), bank import (Plaid/Nordigen), Splitwise import | Later phases |

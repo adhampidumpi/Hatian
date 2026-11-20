@@ -1,11 +1,12 @@
 "use client";
 
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { CalendarDays, ChevronDown, Paperclip, Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { Money } from "@/components/money";
 import { PickerSheet } from "@/components/picker-sheet";
 import { Button } from "@/components/ui/button";
 import { MemberAvatar } from "@/features/groups/member-avatar";
@@ -13,7 +14,15 @@ import { useBroadcastPresence } from "@/features/live/use-broadcast-presence";
 import { memberLabel, type Group } from "@/features/groups/use-group";
 import { categories } from "@/lib/categories";
 import { formatDay, todayIso } from "@/lib/dates";
-import { formatDecimal, parseAmount } from "@/lib/money/format";
+import { convertMinor, RATE_CURRENCIES } from "@/lib/money/convert";
+import { SUPPORTED_CURRENCIES } from "@/lib/money/currency";
+import {
+  currencyName,
+  currencySymbol,
+  formatDecimal,
+  formatRate,
+  parseAmount,
+} from "@/lib/money/format";
 import { cn } from "@/lib/utils";
 import { useTRPC, useTRPCClient } from "@/trpc/react";
 import { useRefreshData } from "@/trpc/use-refresh";
@@ -21,6 +30,17 @@ import { CategoryTile, categoryName } from "./category-icon";
 import { SplitEditor, type EditorMember } from "./split-editor";
 import { evaluateSplit, initialSplit } from "./split-state";
 import type { Expense } from "./use-expenses";
+
+/** The group's currency, then the common ones, then the rest A–Z. */
+function currencyChoices(groupCurrency: string) {
+  return [
+    ...new Set<string>([
+      groupCurrency,
+      ...SUPPORTED_CURRENCIES,
+      ...RATE_CURRENCIES,
+    ]),
+  ];
+}
 
 const chip =
   "relative flex h-10 items-center gap-2 rounded-full border border-line-strong bg-card px-3 text-[14px] text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-ink pointer-coarse:h-11";
@@ -64,8 +84,14 @@ export function ExpenseEditor({
       }));
   }, [group.members, expense]);
 
+  // What was typed, in the currency it was paid in (the group's by default).
+  const [currency, setCurrency] = useState(
+    expense?.originalCurrency ?? group.currency,
+  );
   const [amountText, setAmountText] = useState(
-    expense ? formatDecimal(expense.amount, group.currency) : "",
+    expense
+      ? formatDecimal(expense.originalAmount ?? expense.amount, currency)
+      : "",
   );
   const [description, setDescription] = useState(expense?.description ?? "");
   const [categoryId, setCategoryId] = useState(expense?.categoryId ?? "other");
@@ -77,21 +103,59 @@ export function ExpenseEditor({
   const [split, setSplit] = useState(() =>
     initialSplit(
       members.map((m) => m.id),
-      group.currency,
+      currency,
       expense && { mode: expense.splitMode, shares: expense.shares },
     ),
   );
-  const [picker, setPicker] = useState<"category" | "payer" | null>(null);
+  const [picker, setPicker] = useState<
+    "currency" | "category" | "payer" | null
+  >(null);
 
-  const amount = amountText.trim()
-    ? parseAmount(amountText, group.currency)
-    : null;
+  const amount = amountText.trim() ? parseAmount(amountText, currency) : null;
   const amountInvalid = amountText.trim() !== "" && amount === null;
-  const view = evaluateSplit(split, amount, group.currency, members);
+  const view = evaluateSplit(split, amount, currency, members);
+
+  // Paid in another currency: preview the conversion with the rate the
+  // server will use (the expense's own, unless its currency or date changed).
+  const foreign = currency !== group.currency;
+  const keptRate =
+    expense?.rate &&
+    expense.originalCurrency === currency &&
+    expense.date === date
+      ? expense.rate
+      : null;
+  const rateQuery = useQuery({
+    ...trpc.rates.get.queryOptions({
+      base: currency,
+      quote: group.currency,
+      date,
+    }),
+    enabled: foreign && !keptRate && Boolean(date),
+    staleTime: 10 * 60_000,
+  });
+  const rate = keptRate ?? rateQuery.data ?? null;
+  const converted =
+    foreign && rate && amount
+      ? convertMinor(amount, currency, group.currency, rate)
+      : null;
+  const rateProblem = !foreign
+    ? null
+    : !rate
+      ? rateQuery.isError
+        ? "Couldn't get the exchange rate"
+        : "Getting the exchange rate…"
+      : view.valid && converted === null
+        ? "That amount is too large"
+        : view.valid && converted === 0
+          ? "Too small to convert"
+          : null;
+
   const needsDescription = description.trim() === "";
-  const status =
-    view.valid && needsDescription ? "Add a description" : view.status;
-  const canSave = view.valid && !needsDescription && Boolean(date);
+  const status = !view.valid
+    ? view.status
+    : (rateProblem ?? (needsDescription ? "Add a description" : view.status));
+  const canSave =
+    view.valid && !rateProblem && !needsDescription && Boolean(date);
   const payer = members.find((m) => m.id === paidById);
 
   const onSaved = async (message: string) => {
@@ -144,6 +208,7 @@ export function ExpenseEditor({
       categoryId,
       date,
       amount,
+      currency,
       paidById,
       splitMode: split.mode,
       weights: view.weights,
@@ -194,9 +259,15 @@ export function ExpenseEditor({
 
       <div className="flex flex-1 flex-col gap-3.5 px-5 pt-2 pb-4">
         <div className="flex items-center gap-2.5 rounded-[18px] border border-line bg-card px-3.5 py-3 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-ink">
-          <span className="flex h-11 items-center rounded-xl border border-line-strong bg-paper px-3 text-[14px] font-semibold">
-            {group.currency}
-          </span>
+          <button
+            type="button"
+            aria-label={`Currency: ${currencyName(currency)}. Change currency`}
+            onClick={() => setPicker("currency")}
+            className="flex h-11 shrink-0 items-center gap-1.5 rounded-xl border border-line-strong bg-paper px-3 text-[14px] font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+          >
+            {currency}
+            <ChevronDown size={14} aria-hidden />
+          </button>
           <label htmlFor="expense-amount" className="sr-only">
             Amount
           </label>
@@ -222,6 +293,36 @@ export function ExpenseEditor({
             className="-mt-2 text-[13px] text-owe"
           >
             Enter an amount like 1,250.50
+          </p>
+        )}
+        {foreign && (
+          <p className="-mt-2 flex flex-wrap justify-end gap-x-1.5 text-[13px] text-ink-2">
+            {rate ? (
+              <>
+                {converted ? (
+                  <span>
+                    ≈ <Money amount={converted} currency={group.currency} /> ·
+                  </span>
+                ) : null}
+                <span className="amount">
+                  1 {currency} = {currencySymbol(group.currency)}
+                  {formatRate(rate)}
+                </span>
+              </>
+            ) : rateQuery.isError ? (
+              <>
+                Couldn&apos;t get the exchange rate.
+                <button
+                  type="button"
+                  onClick={() => void rateQuery.refetch()}
+                  className="font-medium text-ink underline underline-offset-4"
+                >
+                  Try again
+                </button>
+              </>
+            ) : (
+              "Getting the exchange rate…"
+            )}
           </p>
         )}
 
@@ -302,7 +403,7 @@ export function ExpenseEditor({
           state={split}
           view={view}
           members={members}
-          currency={group.currency}
+          currency={currency}
           onChange={setSplit}
         />
 
@@ -337,6 +438,22 @@ export function ExpenseEditor({
         </Button>
       </footer>
 
+      <PickerSheet
+        open={picker === "currency"}
+        onOpenChange={(open) => setPicker(open ? "currency" : null)}
+        title="Paid in"
+        value={currency}
+        onSelect={setCurrency}
+        options={currencyChoices(group.currency).map((code) => ({
+          value: code,
+          label: currencyName(code),
+          icon: (
+            <span className="w-10 font-mono text-[13px] font-semibold">
+              {code}
+            </span>
+          ),
+        }))}
+      />
       <PickerSheet
         open={picker === "category"}
         onOpenChange={(open) => setPicker(open ? "category" : null)}

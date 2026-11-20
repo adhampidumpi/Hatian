@@ -169,6 +169,13 @@ export function ExpenseTable({
                   </td>
                   <td className="px-4 py-3.5 text-right">
                     <Money amount={e.amount} currency={group.currency} />
+                    {e.originalCurrency && e.originalAmount !== null && (
+                      <Money
+                        amount={e.originalAmount}
+                        currency={e.originalCurrency}
+                        className="block text-[12px] text-ink-3"
+                      />
+                    )}
                   </td>
                   <td
                     className={cn(
