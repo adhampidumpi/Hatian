@@ -26,7 +26,7 @@ pnpm dev
 ```
 
 No Postgres? Use a free [Neon](https://neon.tech) database, `docker compose up -d`,
-or `pnpm db:local` (Prisma's local Postgres, no Docker). Open
+or `pnpm db:local` (real Postgres 17 from npm, no Docker). Open
 http://localhost:3000 and choose **Try the demo account**.
 
 ## How the money works

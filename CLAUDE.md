@@ -83,8 +83,8 @@ Package manager is **pnpm** (`npm i -g pnpm`; Node 26 has no corepack).
 | `pnpm format` / `pnpm format:check` | Prettier (Markdown and `design/` are ignored) |
 | `pnpm typecheck` | `next typegen` then `tsc --noEmit` |
 | `pnpm test` | Vitest unit tests (`src/**/*.test.ts`) |
-| `pnpm e2e` | Playwright against `pnpm start` on port 3100; build first and seed the DB |
-| `pnpm db:local` | Local Postgres without Docker (`prisma dev`, PGlite) |
+| `pnpm e2e` | Playwright (flows + axe accessibility scan) against `pnpm start` on port 3100; build first and seed the DB |
+| `pnpm db:local` | Local Postgres 17 without Docker (embedded-postgres, data in `.pgdata/`, port 5433); keep it running |
 | `pnpm db:migrate` | Create/apply a migration (`prisma migrate dev`) |
 | `pnpm db:deploy` | Apply migrations (CI / production) |
 | `pnpm db:seed` | Wipe groups and seed the demo data (dev/demo DBs only) |
@@ -93,9 +93,8 @@ Package manager is **pnpm** (`npm i -g pnpm`; Node 26 has no corepack).
 Notes:
 - Copy `.env.example` to `.env`. Without `AUTH_RESEND_KEY`, magic links print to the dev
   server terminal; "Try the demo account" signs in as `demo@hatian.app`.
-- The `prisma dev` database handles one connection well: stop `pnpm dev` before
-  `pnpm e2e`, run e2e with `--workers=1`, and restart it (`pnpm prisma dev stop hatian`,
-  then `pnpm db:local`) if you see "Connection terminated unexpectedly".
+- Don't use `prisma dev` for local Postgres: its PGlite server drops connections when a
+  test server is killed and fails to restart. `pnpm db:local` runs real Postgres instead.
 - Prisma is pinned to **7.10.1** (the `latest` tag points at an 8.0 RC with a new
   architecture). The client is generated to `src/generated/prisma` on install.
 
@@ -103,6 +102,13 @@ Notes:
 
 - Anything that reads the request (session, `searchParams`, `params`, `usePathname()` on
   dynamic routes) must sit inside `<Suspense>`; layouts must not read the session.
-- Get the user with `requireUser()` from `src/server/session.ts` (it calls `connection()`
-  before `auth()`; Auth.js uses crypto first, which prerendering rejects).
+- Get the user with `requireUser()` (or `getSessionUser()` when signed-out is allowed)
+  from `src/server/session.ts`. Never call `auth()` directly: these call `connection()`
+  first (Auth.js uses crypto before reading the cookie, which prerendering rejects) and
+  check the user still exists in the database.
+- Server-action `signIn()` re-throws Auth.js errors; catch `AuthError` (see
+  `src/app/login/actions.ts`).
+- Error boundaries get `retry()` (re-fetches) as well as `reset()`; prefer `retry()`.
+- Tailwind v4: `outline-none` sets the outline style to none, so focus rings need
+  `focus-visible:outline-solid` alongside `outline-2`.
 - Middleware is now `proxy.ts`. We don't use it: pages authorise via `requireUser()`.
