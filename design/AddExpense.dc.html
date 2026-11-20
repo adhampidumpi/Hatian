@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hatian · Add expense</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#17160F}a:hover{color:#55524A}
+button,input{font:inherit}
+button{cursor:pointer}
+input:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid #17160F;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5F3EE; color: #17160F; font-family: 'Instrument Sans', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden">
+
+  <header style="display: flex; align-items: center; gap: 4px; padding: 12px 8px 4px">
+    <a href="Group.dc.html" aria-label="Close" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 22px">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#17160F" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+    </a>
+    <div style="flex: 1">
+      <h1 style="margin: 0; font-size: 17px; font-weight: 600">Add expense</h1>
+      <p style="margin: 0; font-size: 13px; color: #6E6A61">in Siargao Trip</p>
+    </div>
+  </header>
+
+  <main style="flex: 1; overflow-y: auto; padding: 8px 20px 16px; display: flex; flex-direction: column; gap: 14px">
+
+    <div style="display: flex; align-items: center; gap: 10px; background: #FFFFFF; border: 1px solid #E4E0D7; border-radius: 18px; padding: 12px 14px">
+      <button aria-label="Currency: Philippine peso. Change currency" style="height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid #D6D1C6; background: #F5F3EE; display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: #17160F; flex-shrink: 0">
+        PHP
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#17160F" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+      </button>
+      <label for="amt" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Amount</label>
+      <input id="amt" inputmode="decimal" autocomplete="off" value="{{amount}}" onChange="{{onAmount}}" style="flex: 1; min-width: 0; border: 0; background: transparent; font-family: 'IBM Plex Mono', monospace; font-size: 36px; font-weight: 500; letter-spacing: -0.03em; color: #17160F; text-align: right; padding: 0; outline: none">
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 10px">
+      <button aria-label="Category: Food and drink" style="width: 48px; height: 48px; border-radius: 14px; border: 1px solid #E4E0D7; background: #FFFFFF; display: flex; align-items: center; justify-content: center; flex-shrink: 0">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#55524A" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 3v8a2 2 0 0 0 2 2h0a2 2 0 0 0 2-2V3"></path><path d="M7 13v8"></path><path d="M17 21V3c-2 1-3 4-3 7s1 4 3 4"></path></svg>
+      </button>
+      <label for="desc" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Description</label>
+      <input id="desc" placeholder="What was it for?" value="{{desc}}" onChange="{{onDesc}}" style="flex: 1; min-width: 0; height: 48px; box-sizing: border-box; border: 1px solid #E4E0D7; border-radius: 14px; background: #FFFFFF; padding: 0 14px; font-size: 16px; color: #17160F">
+    </div>
+
+    <div style="display: flex; gap: 8px; flex-wrap: wrap">
+      <button style="height: 40px; padding: 0 12px; border-radius: 20px; border: 1px solid #D6D1C6; background: #FFFFFF; display: flex; align-items: center; gap: 8px; font-size: 14px; color: #17160F">
+        <span style="width: 22px; height: 22px; border-radius: 11px; background: #DCE6F2; color: #1E3A5F; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center">MS</span>
+        Paid by <strong style="font-weight: 600">you</strong>
+      </button>
+      <button style="height: 40px; padding: 0 12px; border-radius: 20px; border: 1px solid #D6D1C6; background: #FFFFFF; display: flex; align-items: center; gap: 6px; font-size: 14px; color: #17160F">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#55524A" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>
+        Today
+      </button>
+      <button style="height: 40px; padding: 0 12px; border-radius: 20px; border: 1px dashed #B9B3A6; background: transparent; display: flex; align-items: center; gap: 6px; font-size: 14px; color: #55524A">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#55524A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v12H4z"></path><circle cx="12" cy="13" r="3.5"></circle></svg>
+        Receipt
+      </button>
+    </div>
+
+    <section aria-labelledby="splitHead" style="background: #FFFFFF; border: 1px solid #E4E0D7; border-radius: 18px; padding: 14px">
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+        <h2 id="splitHead" style="margin: 0; font-size: 15px; font-weight: 600">Split</h2>
+        <span style="font-size: 13px; color: #6E6A61">{{summary}}</span>
+      </div>
+
+      <div role="group" aria-label="Split method" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; margin-top: 12px; padding: 4px; background: #F0EDE6; border-radius: 12px">
+        <sc-for list="{{modes}}" as="md" hint-placeholder-count="4">
+          <button aria-pressed="{{md.pressed}}" onClick="{{md.pick}}" style="height: 38px; border: 0; border-radius: 9px; font-size: 14px; font-weight: 600; background: {{md.bg}}; color: {{md.fg}}; box-shadow: {{md.shadow}}">{{md.label}}</button>
+        </sc-for>
+      </div>
+
+      <div aria-hidden="true" style="display: flex; gap: 2px; height: 8px; margin-top: 14px; border-radius: 4px; overflow: hidden; background: #F0EDE6">
+        <sc-for list="{{segments}}" as="sg" hint-placeholder-count="3">
+          <span style="display: block; height: 8px; width: {{sg.width}}; background: {{sg.color}}"></span>
+        </sc-for>
+      </div>
+
+      <ul style="list-style: none; margin: 8px 0 0; padding: 0">
+        <sc-for list="{{rows}}" as="m" hint-placeholder-count="5">
+          <li style="display: flex; align-items: center; gap: 12px; min-height: 56px; border-bottom: 1px solid #F0EDE6; opacity: {{m.opacity}}">
+            <span style="width: 32px; height: 32px; border-radius: 16px; background: {{m.bg}}; color: {{m.fg}}; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0">{{m.ini}}</span>
+            <span style="flex: 1; font-size: 15px; font-weight: 500">{{m.name}}</span>
+
+            <sc-if value="{{m.isEqual}}" hint-placeholder-val="{{ true }}">
+              <label style="display: flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #17160F; min-width: 84px; text-align: right">{{m.amountText}}</span>
+                <input type="checkbox" checked="{{m.included}}" onChange="{{m.toggle}}" aria-label="Include {{m.name}}" style="width: 22px; height: 22px; accent-color: #17160F; margin: 0; cursor: pointer">
+              </label>
+            </sc-if>
+
+            <sc-if value="{{m.isStepper}}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; align-items: center; gap: 8px">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #6E6A61; min-width: 72px; text-align: right">{{m.amountText}}</span>
+                <div style="display: flex; align-items: center; border: 1px solid #D6D1C6; border-radius: 12px">
+                  <button onClick="{{m.dec}}" aria-label="Less for {{m.name}}" style="width: 36px; height: 40px; border: 0; background: transparent; font-size: 18px; color: #17160F">−</button>
+                  <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 500; min-width: 34px; text-align: center">{{m.stepText}}</span>
+                  <button onClick="{{m.inc}}" aria-label="More for {{m.name}}" style="width: 36px; height: 40px; border: 0; background: transparent; font-size: 18px; color: #17160F">+</button>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{m.isExact}}" hint-placeholder-val="{{ false }}">
+              <div style="display: flex; align-items: center; height: 44px; border: 1px solid #D6D1C6; border-radius: 12px; padding: 0 10px; width: 132px; box-sizing: border-box; background: #FFFFFF">
+                <span style="font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #6E6A61">₱</span>
+                <input inputmode="decimal" placeholder="0.00" value="{{m.exactText}}" onChange="{{m.onExact}}" aria-label="Amount for {{m.name}}" style="flex: 1; min-width: 0; border: 0; outline: none; background: transparent; text-align: right; font-family: 'IBM Plex Mono', monospace; font-size: 14px; color: #17160F">
+              </div>
+            </sc-if>
+          </li>
+        </sc-for>
+      </ul>
+
+      <sc-if value="{{hasRoundNote}}" hint-placeholder-val="{{ true }}">
+        <p style="margin: 10px 0 0; font-size: 12px; line-height: 1.4; color: #6E6A61">{{roundNote}}</p>
+      </sc-if>
+    </section>
+  </main>
+
+  <footer style="padding: 12px 20px 28px; border-top: 1px solid #E4E0D7; background: #F5F3EE; display: flex; align-items: center; gap: 12px">
+    <p role="status" aria-live="polite" style="flex: 1; margin: 0; font-size: 14px; line-height: 1.3; font-weight: 500; color: {{statusColor}}">{{statusText}}</p>
+    <sc-if value="{{valid}}" hint-placeholder-val="{{ true }}">
+      <a href="Group.dc.html" style="height: 52px; padding: 0 28px; border-radius: 14px; background: #17160F; color: #F5F3EE; font-size: 16px; font-weight: 600; display: flex; align-items: center; text-decoration: none">Save</a>
+    </sc-if>
+    <sc-if value="{{invalid}}" hint-placeholder-val="{{ false }}">
+      <button disabled style="height: 52px; padding: 0 28px; border-radius: 14px; border: 0; background: #DAD6CD; color: #55524A; font-size: 16px; font-weight: 600; cursor: not-allowed">Save</button>
+    </sc-if>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+var MEMBERS = [
+  { id: 'you', name: 'You', ini: 'MS', bg: '#DCE6F2', fg: '#1E3A5F', bar: '#3B5B85' },
+  { id: 'ana', name: 'Ana', ini: 'AN', bg: '#F3E1D3', fg: '#7A3E12', bar: '#C2703D' },
+  { id: 'bea', name: 'Bea', ini: 'BE', bg: '#E3EEDB', fg: '#2F5A1E', bar: '#5E8C4A' },
+  { id: 'carlo', name: 'Carlo', ini: 'CA', bg: '#EDE2F0', fg: '#5B2D6E', bar: '#8C5A9E' },
+  { id: 'dan', name: 'Dan', ini: 'DA', bg: '#F5E9C8', fg: '#6B4E00', bar: '#B08A12' }
+];
+var MODES = [
+  { id: 'equal', label: 'Equally' },
+  { id: 'shares', label: 'Shares' },
+  { id: 'pct', label: '%' },
+  { id: 'exact', label: 'Exact' }
+];
+
+function toCents(text) {
+  var n = parseFloat(String(text || '').replace(/[^0-9.]/g, ''));
+  return isFinite(n) ? Math.round(n * 100) : 0;
+}
+function peso(cents) {
+  var sign = cents < 0 ? '-' : '';
+  var v = Math.abs(cents) / 100;
+  return sign + '₱' + v.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+// Largest-remainder (Hamilton) apportionment, same idea as dinero.js allocate():
+// floor every share, then hand leftover centavos to the biggest fractional parts.
+function apportion(total, weights) {
+  var W = weights.reduce(function (a, b) { return a + b; }, 0);
+  var out = weights.map(function () { return 0; });
+  if (W <= 0 || total <= 0) return { amounts: out, bumped: [] };
+  out = weights.map(function (w) { return Math.floor(total * w / W); });
+  var rem = total - out.reduce(function (a, b) { return a + b; }, 0);
+  var order = weights
+    .map(function (w, i) { return { i: i, w: w, f: total * w / W - out[i] }; })
+    .filter(function (x) { return x.w > 0; })
+    .sort(function (a, b) { return b.f - a.f || a.i - b.i; });
+  var bumped = [];
+  for (var k = 0; k < rem; k++) { out[order[k].i] += 1; bumped.push(order[k].i); }
+  return { amounts: out, bumped: bumped };
+}
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      amount: '1,000.00',
+      desc: 'Breakfast at Shaka',
+      mode: 'equal',
+      included: { you: true, ana: true, bea: true, carlo: false, dan: false },
+      shares: { you: 1, ana: 1, bea: 1, carlo: 1, dan: 1 },
+      pct: { you: 20, ana: 20, bea: 20, carlo: 20, dan: 20 },
+      exact: { you: '', ana: '', bea: '', carlo: '', dan: '' }
+    };
+  }
+
+  setIn(key, id, value) {
+    var next = Object.assign({}, this.state[key]);
+    next[id] = value;
+    var patch = {};
+    patch[key] = next;
+    this.setState(patch);
+  }
+
+  renderVals() {
+    var self = this;
+    var s = this.state;
+    var total = toCents(s.amount);
+    var mode = s.mode;
+
+    var weights, amounts, bumped = [];
+    if (mode === 'exact') {
+      amounts = MEMBERS.map(function (m) { return toCents(s.exact[m.id]); });
+      weights = amounts;
+    } else {
+      weights = MEMBERS.map(function (m) {
+        if (mode === 'equal') return s.included[m.id] ? 1 : 0;
+        if (mode === 'shares') return s.shares[m.id];
+        return s.pct[m.id];
+      });
+      var res = apportion(total, weights);
+      amounts = res.amounts;
+      bumped = res.bumped;
+    }
+
+    var assigned = amounts.reduce(function (a, b) { return a + b; }, 0);
+    var people = weights.filter(function (w) { return w > 0; }).length;
+    var pctSum = MEMBERS.reduce(function (a, m) { return a + s.pct[m.id]; }, 0);
+    var shareSum = MEMBERS.reduce(function (a, m) { return a + s.shares[m.id]; }, 0);
+
+    var valid = false, statusText = '', summary = '';
+    if (total <= 0) {
+      statusText = 'Enter an amount';
+    } else if (mode === 'equal') {
+      valid = people > 0;
+      statusText = valid ? peso(total) + ' split ' + people + (people === 1 ? ' way' : ' ways') : 'Pick at least one person';
+      summary = people + ' of ' + MEMBERS.length + ' people';
+    } else if (mode === 'shares') {
+      valid = shareSum > 0;
+      statusText = valid ? shareSum + ' shares · ' + peso(Math.round(total / shareSum)) + ' per share' : 'Give someone a share';
+      summary = shareSum + ' shares';
+    } else if (mode === 'pct') {
+      valid = pctSum === 100;
+      statusText = valid ? 'Adds up to 100%' : (pctSum < 100 ? (100 - pctSum) + '% left to assign' : (pctSum - 100) + '% too much');
+      summary = pctSum + '% of 100%';
+    } else {
+      var diff = total - assigned;
+      valid = diff === 0;
+      statusText = valid ? 'Adds up to ' + peso(total) : (diff > 0 ? peso(diff) + ' left to assign' : peso(-diff) + ' over the total');
+      summary = peso(assigned) + ' of ' + peso(total);
+    }
+
+    var bumpedNames = bumped.map(function (i) { return MEMBERS[i].name; });
+    var roundNote = '';
+    if (mode !== 'exact' && bumped.length > 0) {
+      roundNote = 'Can’t split evenly to the centavo, so ' + bumped.length + ' extra centavo' + (bumped.length > 1 ? 's go' : ' goes') + ' to ' + bumpedNames.join(' and ') + '. Everyone else pays the rounded-down amount.';
+    }
+
+    var denom = mode === 'exact' ? Math.max(total, assigned) : total;
+    var segments = MEMBERS.map(function (m, i) {
+      return { width: denom > 0 ? (amounts[i] / denom * 100).toFixed(3) + '%' : '0%', color: m.bar };
+    }).filter(function (sg, i) { return amounts[i] > 0; });
+
+    var rows = MEMBERS.map(function (m, i) {
+      var included = mode === 'equal' ? !!s.included[m.id] : weights[i] > 0;
+      return {
+        name: m.name, ini: m.ini, bg: m.bg, fg: m.fg,
+        isEqual: mode === 'equal',
+        isStepper: mode === 'shares' || mode === 'pct',
+        isExact: mode === 'exact',
+        included: !!s.included[m.id],
+        opacity: included || mode === 'exact' ? '1' : '0.55',
+        amountText: included ? peso(amounts[i]) : '—',
+        stepText: mode === 'pct' ? s.pct[m.id] + '%' : String(s.shares[m.id]),
+        exactText: s.exact[m.id],
+        toggle: function () { self.setIn('included', m.id, !s.included[m.id]); },
+        inc: function () {
+          if (mode === 'pct') self.setIn('pct', m.id, Math.min(100, s.pct[m.id] + 5));
+          else self.setIn('shares', m.id, Math.min(20, s.shares[m.id] + 1));
+        },
+        dec: function () {
+          if (mode === 'pct') self.setIn('pct', m.id, Math.max(0, s.pct[m.id] - 5));
+          else self.setIn('shares', m.id, Math.max(0, s.shares[m.id] - 1));
+        },
+        onExact: function (e) { self.setIn('exact', m.id, e.target.value); }
+      };
+    });
+
+    var modes = MODES.map(function (md) {
+      var on = md.id === mode;
+      return {
+        label: md.label,
+        pressed: on ? 'true' : 'false',
+        bg: on ? '#FFFFFF' : 'transparent',
+        fg: on ? '#17160F' : '#55524A',
+        shadow: on ? '0 1px 2px rgba(23,22,15,0.12)' : 'none',
+        pick: function () { self.setState({ mode: md.id }); }
+      };
+    });
+
+    return {
+      amount: s.amount,
+      desc: s.desc,
+      onAmount: function (e) { self.setState({ amount: e.target.value }); },
+      onDesc: function (e) { self.setState({ desc: e.target.value }); },
+      modes: modes,
+      segments: segments,
+      rows: rows,
+      summary: summary,
+      roundNote: roundNote,
+      hasRoundNote: roundNote.length > 0,
+      statusText: statusText,
+      statusColor: valid ? '#17160F' : '#B23E0C',
+      valid: valid,
+      invalid: !valid
+    };
+  }
+}
+</script>
+</body>
+</html>

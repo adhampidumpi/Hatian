@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hatian · Activity</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#17160F}a:hover{color:#55524A}
+button{font:inherit;cursor:pointer}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5F3EE; color: #17160F; font-family: 'Instrument Sans', system-ui, sans-serif; display: flex; flex-direction: column; overflow: hidden">
+
+  <header style="padding: 20px 20px 0">
+    <div style="display: flex; justify-content: space-between; align-items: center">
+      <h1 style="margin: 0; font-size: 26px; font-weight: 700; letter-spacing: -0.02em">Activity</h1>
+      <span style="display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px; border-radius: 15px; background: #DCEBE6; color: #0B4E39; font-size: 13px; font-weight: 600">
+        <span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 4px; background: #0B6B4C; box-shadow: 0 0 0 3px rgba(11,107,76,0.2)"></span>
+        Live
+      </span>
+    </div>
+    <div role="group" aria-label="Filter activity" style="display: flex; gap: 8px; margin-top: 14px; overflow: hidden">
+      <button aria-pressed="true" style="height: 36px; padding: 0 14px; border-radius: 18px; border: 1px solid #17160F; background: #17160F; color: #F5F3EE; font-size: 14px; font-weight: 600">All</button>
+      <button aria-pressed="false" style="height: 36px; padding: 0 14px; border-radius: 18px; border: 1px solid #D6D1C6; background: #FFFFFF; color: #17160F; font-size: 14px; font-weight: 500">Expenses</button>
+      <button aria-pressed="false" style="height: 36px; padding: 0 14px; border-radius: 18px; border: 1px solid #D6D1C6; background: #FFFFFF; color: #17160F; font-size: 14px; font-weight: 500">Payments</button>
+      <button aria-pressed="false" style="height: 36px; padding: 0 14px; border-radius: 18px; border: 1px solid #D6D1C6; background: #FFFFFF; color: #17160F; font-size: 14px; font-weight: 500">Edits</button>
+    </div>
+  </header>
+
+  <main style="flex: 1; overflow: hidden; padding: 6px 20px 0">
+
+    <div role="status" style="display: flex; align-items: center; gap: 10px; margin-top: 10px; padding: 10px 12px; border-radius: 14px; border: 1px dashed #B9B3A6">
+      <span style="width: 28px; height: 28px; border-radius: 14px; background: #E3EEDB; color: #2F5A1E; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center">BE</span>
+      <span style="font-size: 14px; color: #55524A"><strong style="font-weight: 600; color: #17160F">Bea</strong> is adding an expense in Siargao Trip…</span>
+    </div>
+
+    <h2 style="margin: 18px 0 2px; font-size: 13px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #55524A">Today</h2>
+    <ol style="list-style: none; margin: 0; padding: 0">
+      <li style="display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #E4E0D7">
+        <span style="width: 34px; height: 34px; border-radius: 17px; background: #F3E1D3; color: #7A3E12; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0">AN</span>
+        <div style="flex: 1; min-width: 0">
+          <p style="margin: 0; font-size: 14px; line-height: 1.4"><strong style="font-weight: 600">Ana</strong> added “Surf lessons” <span style="font-family: 'IBM Plex Mono', monospace">₱12,500.00</span></p>
+          <p style="margin: 2px 0 0; font-size: 13px; color: #B23E0C">You borrowed <span style="font-family: 'IBM Plex Mono', monospace">₱2,500.00</span></p>
+          <p style="margin: 2px 0 0; font-size: 12px; color: #6E6A61">Siargao Trip · 2h ago</p>
+        </div>
+      </li>
+      <li style="display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #E4E0D7">
+        <span style="width: 34px; height: 34px; border-radius: 17px; background: #DCE6F2; color: #1E3A5F; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0">MS</span>
+        <div style="flex: 1; min-width: 0">
+          <p style="margin: 0; font-size: 14px; line-height: 1.4"><strong style="font-weight: 600">You</strong> added “Dinner at Kermit” <span style="font-family: 'IBM Plex Mono', monospace">₱4,860.00</span></p>
+          <p style="margin: 2px 0 0; font-size: 13px; color: #0B6B4C">You lent <span style="font-family: 'IBM Plex Mono', monospace">₱3,888.00</span></p>
+          <p style="margin: 2px 0 0; font-size: 12px; color: #6E6A61">Siargao Trip · 4h ago</p>
+        </div>
+      </li>
+      <li style="display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #E4E0D7">
+        <span style="width: 34px; height: 34px; border-radius: 17px; background: #FBE3D6; color: #8A2E05; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0">JO</span>
+        <div style="flex: 1; min-width: 0">
+          <p style="margin: 0; font-size: 14px; line-height: 1.4"><strong style="font-weight: 600">Joy</strong> added “Electricity, Oct” <span style="font-family: 'IBM Plex Mono', monospace">₱4,350.00</span></p>
+          <p style="margin: 2px 0 0; font-size: 13px; color: #B23E0C">You borrowed <span style="font-family: 'IBM Plex Mono', monospace">₱1,450.00</span></p>
+          <p style="margin: 2px 0 0; font-size: 12px; color: #6E6A61">Condo 4B · 6h ago</p>
+        </div>
+      </li>
+    </ol>
+
+    <h2 style="margin: 18px 0 2px; font-size: 13px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #55524A">Yesterday</h2>
+    <ol style="list-style: none; margin: 0; padding: 0">
+      <li style="display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid #E4E0D7">
+        <span style="width: 34px; height: 34px; border-radius: 17px; background: #E3EEDB; color: #2F5A1E; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0">BE</span>
+        <div style="flex: 1; min-width: 0">
+          <p style="margin: 0; font-size: 14px; line-height: 1.4"><strong style="font-weight: 600">Bea</strong> edited “Groceries”</p>
+          <p style="margin: 2px 0 0; font-size: 13px; color: #55524A">Amount <span style="font-family: 'IBM Plex Mono', monospace; text-decoration: line-through; color: #6E6A61">₱2,140.00</span> → <span style="font-family: 'IBM Plex Mono', monospace; color: #17160F">₱2,340.00</span> · Dan removed from split</p>
+          <p style="margin: 2px 0 0; font-size: 12px; color: #6E6A61">Siargao Trip · 9:12 PM</p>
+        </div>
+      </li>
+      <li style="display: flex; gap: 12px; padding: 12px 0">
+        <span style="width: 34px; height: 34px; border-radius: 17px; background: #F5E9C8; color: #6B4E00; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0">DA</span>
+        <div style="flex: 1; min-width: 0">
+          <p style="margin: 0; font-size: 14px; line-height: 1.4"><strong style="font-weight: 600">Dan</strong> joined Siargao Trip with the invite link</p>
+          <p style="margin: 2px 0 0; font-size: 12px; color: #6E6A61">7:40 PM</p>
+        </div>
+      </li>
+    </ol>
+  </main>
+
+  <nav aria-label="Primary" style="display: flex; align-items: center; justify-content: space-around; padding: 8px 8px 26px; background: #F5F3EE; border-top: 1px solid #E4E0D7">
+    <a href="Main.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 60px; min-height: 48px; justify-content: center; font-size: 11px; font-weight: 500; color: #6E6A61; text-decoration: none">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V9l8-6 8 6v12h-5v-6H9v6z"></path></svg>Home</a>
+    <a href="Group.dc.html" style="display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 60px; min-height: 48px; justify-content: center; font-size: 11px; font-weight: 500; color: #6E6A61; text-decoration: none">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0"></path><path d="M16 4.5a3.5 3.5 0 0 1 0 7"></path><path d="M18 14.5a6.5 6.5 0 0 1 3.5 5.5"></path></svg>Groups</a>
+    <a href="AddExpense.dc.html" aria-label="Add expense" style="width: 56px; height: 56px; border-radius: 18px; background: #17160F; color: #F5F3EE; display: flex; align-items: center; justify-content: center; text-decoration: none">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></a>
+    <a href="Activity.dc.html" aria-current="page" style="display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 60px; min-height: 48px; justify-content: center; font-size: 11px; font-weight: 600; color: #17160F; text-decoration: none">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"></path></svg>Activity</a>
+    <a href="#" style="display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 60px; min-height: 48px; justify-content: center; font-size: 11px; font-weight: 500; color: #6E6A61; text-decoration: none">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg>Account</a>
+  </nav>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

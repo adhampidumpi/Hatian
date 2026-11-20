@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hatian · Record a payment</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#17160F}a:hover{color:#55524A}
+button,input{font:inherit}
+button{cursor:pointer}
+input:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid #17160F;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: #F5F3EE; color: #17160F; font-family: 'Instrument Sans', system-ui, sans-serif; position: relative; overflow: hidden">
+
+  <div aria-hidden="true" style="padding: 24px 20px; display: flex; flex-direction: column; gap: 14px">
+    <div style="height: 22px; width: 120px; border-radius: 6px; background: #E4E0D7"></div>
+    <div style="height: 210px; border-radius: 18px; background: #FFFFFF; border: 1px solid #E4E0D7"></div>
+    <div style="height: 260px; border-radius: 18px; background: #FFFFFF; border: 1px solid #E4E0D7"></div>
+  </div>
+  <a href="Balances.dc.html" aria-label="Close and go back to balances" style="position: absolute; inset: 0; background: rgba(23, 22, 15, 0.45)"></a>
+
+  <section role="dialog" aria-modal="true" aria-labelledby="sheetTitle" style="position: absolute; left: 0; right: 0; bottom: 0; background: #F5F3EE; border-radius: 24px 24px 0 0; padding: 8px 20px 28px; box-shadow: 0 -8px 30px rgba(23,22,15,0.18)">
+    <div aria-hidden="true" style="width: 40px; height: 5px; border-radius: 3px; background: #CFC9BD; margin: 0 auto 12px"></div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center">
+      <h2 id="sheetTitle" style="margin: 0; font-size: 19px; font-weight: 700; letter-spacing: -0.01em">Record a payment</h2>
+      <a href="Balances.dc.html" aria-label="Close" style="width: 44px; height: 44px; margin-right: -10px; display: flex; align-items: center; justify-content: center; border-radius: 22px">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#17160F" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg>
+      </a>
+    </div>
+
+    <div style="display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 8px">
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; width: 92px">
+        <span style="width: 52px; height: 52px; border-radius: 26px; background: #EDE2F0; color: #5B2D6E; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center">CA</span>
+        <span style="font-size: 14px; font-weight: 600">Carlo</span>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 2px; color: #6E6A61; font-size: 12px">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#17160F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h16M14 6l6 6-6 6"></path></svg>
+        paid
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; width: 92px">
+        <span style="width: 52px; height: 52px; border-radius: 26px; background: #F3E1D3; color: #7A3E12; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center">AN</span>
+        <span style="font-size: 14px; font-weight: 600">Ana</span>
+      </div>
+    </div>
+
+    <div style="margin-top: 16px; background: #FFFFFF; border: 1px solid #E4E0D7; border-radius: 16px; padding: 12px 14px">
+      <label for="payAmt" style="display: block; font-size: 13px; color: #6E6A61">Amount</label>
+      <div style="display: flex; align-items: baseline; gap: 4px">
+        <span style="font-family: 'IBM Plex Mono', monospace; font-size: 30px; color: #6E6A61">₱</span>
+        <input id="payAmt" inputmode="decimal" value="{{amount}}" onChange="{{onAmount}}" style="flex: 1; min-width: 0; border: 0; outline: none; background: transparent; padding: 0; font-family: 'IBM Plex Mono', monospace; font-size: 30px; font-weight: 500; letter-spacing: -0.03em; color: #17160F">
+      </div>
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px">
+        <span style="font-size: 13px; color: {{hintColor}}">{{hint}}</span>
+        <sc-if value="{{showFull}}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{fillFull}}" style="height: 36px; padding: 0 12px; border-radius: 18px; border: 1px solid #D6D1C6; background: #F5F3EE; font-size: 13px; font-weight: 600; color: #17160F">Pay in full</button>
+        </sc-if>
+      </div>
+    </div>
+
+    <fieldset style="border: 0; margin: 16px 0 0; padding: 0">
+      <legend style="font-size: 13px; color: #6E6A61; padding: 0; margin-bottom: 8px">How did Carlo pay?</legend>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+        <sc-for list="{{methods}}" as="mt" hint-placeholder-count="4">
+          <button aria-pressed="{{mt.pressed}}" onClick="{{mt.pick}}" style="height: 48px; border-radius: 12px; border: {{mt.border}}; background: {{mt.bg}}; color: {{mt.fg}}; font-size: 14px; font-weight: 600">{{mt.label}}</button>
+        </sc-for>
+      </div>
+    </fieldset>
+
+    <label for="ref" style="display: block; font-size: 13px; color: #6E6A61; margin-top: 16px">Reference no. or note <span style="color: #6E6A61">(optional)</span></label>
+    <input id="ref" placeholder="{{refPlaceholder}}" style="margin-top: 6px; width: 100%; box-sizing: border-box; height: 48px; border: 1px solid #E4E0D7; border-radius: 12px; background: #FFFFFF; padding: 0 14px; font-size: 16px; color: #17160F">
+
+    <sc-if value="{{valid}}" hint-placeholder-val="{{ true }}">
+      <a href="Balances.dc.html" style="margin-top: 18px; height: 54px; border-radius: 14px; background: #17160F; color: #F5F3EE; font-size: 16px; font-weight: 600; display: flex; align-items: center; justify-content: center; text-decoration: none">{{cta}}</a>
+    </sc-if>
+    <sc-if value="{{invalid}}" hint-placeholder-val="{{ false }}">
+      <button disabled style="margin-top: 18px; width: 100%; height: 54px; border-radius: 14px; border: 0; background: #DAD6CD; color: #55524A; font-size: 16px; font-weight: 600; cursor: not-allowed">{{cta}}</button>
+    </sc-if>
+    <p style="margin: 10px 0 0; text-align: center; font-size: 12px; color: #6E6A61">Everyone in Siargao Trip will see this. It can be undone.</p>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+var OWED = 310700;
+var METHODS = ['Cash', 'GCash', 'Maya', 'Bank'];
+function toCents(t) { var n = parseFloat(String(t || '').replace(/[^0-9.]/g, '')); return isFinite(n) ? Math.round(n * 100) : 0; }
+function peso(c) { return '₱' + (c / 100).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { amount: '3,107.00', method: 'GCash' };
+  }
+  renderVals() {
+    var self = this;
+    var c = toCents(this.state.amount);
+    var hint, hintColor = '#6E6A61';
+    if (c <= 0) { hint = 'Enter an amount'; hintColor = '#B23E0C'; }
+    else if (c === OWED) hint = 'Clears what Carlo owes Ana';
+    else if (c < OWED) hint = 'Partial: ' + peso(OWED - c) + ' still owed';
+    else { hint = peso(c - OWED) + ' more than Carlo owes Ana'; hintColor = '#B23E0C'; }
+    var method = this.state.method;
+    return {
+      amount: this.state.amount,
+      onAmount: function (e) { self.setState({ amount: e.target.value }); },
+      hint: hint,
+      hintColor: hintColor,
+      showFull: c !== OWED,
+      fillFull: function () { self.setState({ amount: '3,107.00' }); },
+      methods: METHODS.map(function (m) {
+        var on = m === method;
+        return {
+          label: m,
+          pressed: on ? 'true' : 'false',
+          bg: on ? '#17160F' : '#FFFFFF',
+          fg: on ? '#F5F3EE' : '#17160F',
+          border: on ? '1px solid #17160F' : '1px solid #D6D1C6',
+          pick: function () { self.setState({ method: m }); }
+        };
+      }),
+      refPlaceholder: method === 'Cash' ? 'e.g. paid at the airport' : 'e.g. ' + method + ' ref 1029 384 7756',
+      valid: c > 0,
+      invalid: c <= 0,
+      cta: c > 0 ? 'Record ' + peso(c) + ' via ' + method : 'Record payment'
+    };
+  }
+}
+</script>
+</body>
+</html>
