@@ -61,7 +61,11 @@ function DrawerContent({
         {...props}
       >
         <div className="mx-auto mt-3 hidden h-1.5 w-10 shrink-0 rounded-full bg-line-strong group-data-[vaul-drawer-direction=bottom]/drawer-content:block" />
-        {children}
+        {/* vaul needs the scrolling on an inner element: scrolling the
+            drawer itself stops painting its content in Chromium. */}
+        <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
+          {children}
+        </div>
       </DrawerPrimitive.Content>
     </DrawerPortal>
   );
