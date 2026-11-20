@@ -1,4 +1,8 @@
 ignoredBuiltDependencies:
+  - "@embedded-postgres/darwin-arm64"
+  - "@embedded-postgres/darwin-x64"
+  - "@embedded-postgres/linux-x64"
+  - "@embedded-postgres/windows-x64"
   - sharp
   - unrs-resolver
 onlyBuiltDependencies:
