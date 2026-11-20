@@ -7,13 +7,17 @@ const optional = z
   .optional()
   .transform((value) => value || undefined);
 
+const building = process.env.NEXT_PHASE === "phase-production-build";
+
 const schema = z
   .object({
     /** The app's connection (Neon: the pooled URL). */
     DATABASE_URL: z.string().min(1, "is required"),
     /** A direct connection, for LISTEN and migrations, when DATABASE_URL is pooled. */
     DATABASE_URL_UNPOOLED: optional,
-    AUTH_SECRET: z.string().min(1, "is required"),
+    // Needed when someone signs in, not to build. Vercel's "Secret"
+    // variables only exist at run time, so the build doesn't require it.
+    AUTH_SECRET: building ? optional : z.string().min(1, "is required"),
     AUTH_GOOGLE_ID: optional,
     AUTH_GOOGLE_SECRET: optional,
     AUTH_RESEND_KEY: optional,
