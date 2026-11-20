@@ -1,6 +1,7 @@
 /**
- * Expense categories. Seeded into the Category table and used by the
- * category picker, so the ids here are the source of truth.
+ * Expense categories, used by the category picker; the ids here are the
+ * source of truth. The Category table gets them from a migration
+ * (20261121000000_category_rows): adding one needs a migration too.
  * `icon` is a lucide icon name (see src/features/expenses/category-icon.tsx).
  */
 export const categories = [
