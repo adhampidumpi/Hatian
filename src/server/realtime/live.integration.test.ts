@@ -3,7 +3,7 @@ import type { LiveEvent } from "@/lib/live";
 import { cleanUp, makeGroup, makeUser } from "@/test/factories";
 import { createCaller } from "../api/root";
 import { db } from "../db";
-import { ensureListening, liveEvents, publish } from "./bus";
+import { ensureListening, isListening, liveEvents, publish } from "./bus";
 
 // The caller gets its user passed in; keep Auth.js (which needs the Next
 // runtime) out of the test.
@@ -60,6 +60,27 @@ describe("Postgres NOTIFY bus", () => {
     const groups = seen.map((e) => e.groupId);
     expect(groups).toContain(`${tag}_committed`);
     expect(groups).not.toContain(`${tag}_rolled_back`);
+  });
+});
+
+describe("the listening connection", () => {
+  it("closes a minute after the last subscriber leaves", async () => {
+    const subscriber = () => {};
+    liveEvents.on("event", subscriber);
+    await ensureListening();
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    try {
+      liveEvents.off("event", subscriber);
+      vi.advanceTimersByTime(59_000);
+      expect(isListening()).toBe(true);
+      vi.advanceTimersByTime(1_000);
+      expect(isListening()).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+    // …and opens again for the next one.
+    await ensureListening();
+    expect(isListening()).toBe(true);
   });
 });
 

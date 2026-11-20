@@ -175,12 +175,14 @@ describe("getRate", () => {
   it("rechecks today's rate after an hour, falling back to the old one", async () => {
     const today = isoDate(new Date());
     const key = { base: "ZAR", quote: "PHP", date: new Date(today) };
-    await db.currencyRate.create({
-      data: {
-        ...key,
-        rate: "3.1",
-        fetchedAt: new Date(Date.now() - 2 * 3600_000),
-      },
+    const stale = {
+      rate: "3.1",
+      fetchedAt: new Date(Date.now() - 2 * 3600_000),
+    };
+    await db.currencyRate.upsert({
+      where: { base_quote_date: key },
+      create: { ...key, ...stale },
+      update: stale,
     });
     expect(await getRate("ZAR", "PHP", today)).toBe("3.1"); // API down
     fetchMock.mockResolvedValue(answer({ PHP: 3.2 }));

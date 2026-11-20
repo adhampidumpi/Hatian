@@ -25,19 +25,42 @@ export function publish(
   return client.$executeRaw`SELECT pg_notify(${CHANNEL}, ${JSON.stringify(event)})`;
 }
 
+/**
+ * A minute after the last subscriber leaves, the listening connection
+ * closes, so a serverless database (Neon) can scale to zero between
+ * visitors. The next subscriber opens it again.
+ */
+const IDLE_CLOSE_MS = 60_000;
+
 type Listener = {
   emitter: EventEmitter;
   client: pg.Client | null;
   connecting: Promise<void> | null;
+  idleTimer: ReturnType<typeof setTimeout> | null;
 };
 
 // One per process, kept across hot reloads in development.
 const globalForBus = globalThis as unknown as { liveBus?: Listener };
-const bus: Listener = (globalForBus.liveBus ??= {
-  emitter: new EventEmitter().setMaxListeners(0),
-  client: null,
-  connecting: null,
-});
+const bus: Listener = (globalForBus.liveBus ??= createBus());
+
+function createBus(): Listener {
+  const created: Listener = {
+    emitter: new EventEmitter().setMaxListeners(0),
+    client: null,
+    connecting: null,
+    idleTimer: null,
+  };
+  created.emitter.on("newListener", (name) => {
+    if (name !== "event" || !created.idleTimer) return;
+    clearTimeout(created.idleTimer);
+    created.idleTimer = null;
+  });
+  created.emitter.on("removeListener", (name) => {
+    if (name !== "event" || created.emitter.listenerCount("event") > 0) return;
+    created.idleTimer ??= setTimeout(closeIfIdle, IDLE_CLOSE_MS);
+  });
+  return created;
+}
 
 async function connect(): Promise<void> {
   const client = new pg.Client({
@@ -52,22 +75,39 @@ async function connect(): Promise<void> {
       // Ignore payloads that aren't ours.
     }
   });
-  client.on("error", () => reconnect());
-  client.on("end", () => reconnect());
+  client.on("error", () => dropped(client));
+  client.on("end", () => dropped(client));
   await client.connect();
   await client.query(`LISTEN ${CHANNEL}`);
   bus.client = client;
 }
 
-function reconnect() {
-  if (bus.client === null) return;
+/** The connection broke: reconnect while anyone is still listening. */
+function dropped(client: pg.Client) {
+  if (bus.client !== client) return;
   bus.client = null;
   bus.connecting = null;
-  // Retry shortly if anyone is still listening; SSE clients resume meanwhile.
-  if (bus.emitter.listenerCount("event") > 0) {
-    setTimeout(() => void ensureListening().catch(() => reconnect()), 1_000);
-  }
+  retrySoon();
 }
+
+function retrySoon() {
+  setTimeout(() => {
+    if (bus.emitter.listenerCount("event") === 0) return;
+    ensureListening().catch(retrySoon);
+  }, 1_000);
+}
+
+function closeIfIdle() {
+  bus.idleTimer = null;
+  const client = bus.client;
+  if (!client || bus.emitter.listenerCount("event") > 0) return;
+  bus.client = null;
+  bus.connecting = null;
+  void client.end().catch(() => {});
+}
+
+/** Whether this process holds a listening connection (for tests). */
+export const isListening = () => bus.client !== null;
 
 /** Start the process's listener on first use. */
 export async function ensureListening() {
