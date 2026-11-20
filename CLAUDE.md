@@ -51,7 +51,7 @@ in `docs/`. Read these before starting any feature:
 | Forms | react-hook-form + zod (shared schemas client/server) |
 | Money | dinero.js (amounts, `allocate()` for splits, currency) |
 | Exchange rates | Frankfurter API (free, no key), cached in DB |
-| Real-time | tRPC subscriptions (SSE) or a hosted service (Supabase Realtime / Pusher). Decide in phase 3 |
+| Real-time | Postgres LISTEN/NOTIFY → tRPC subscriptions (SSE) (decided in phase 3) |
 | Dates | date-fns |
 | Tests | Vitest + Testing Library, Playwright for e2e |
 | Tooling | ESLint, Prettier, Docker Compose (Postgres) for local dev, GitHub Actions CI |
@@ -64,7 +64,7 @@ in `docs/`. Read these before starting any feature:
 2. ✅ **Core money:** groups + invite links, add/edit/delete expense with the 4 split
    modes, balances, settle up with the simplify toggle, record payment, activity log.
    Seed script with the Siargao Trip sample data from `docs/product-spec.md`.
-3. **Real-time + polish:** live updates and "X is adding an expense…" presence,
+3. ✅ **Real-time + polish:** live updates and "X is adding an expense…" presence,
    multi-currency, empty/loading/error states, dark mode.
 4. **Portfolio finish:** demo account with seeded data, README with architecture
    diagram and trade-offs, deploy, Lighthouse/accessibility pass.
@@ -76,9 +76,21 @@ Decisions made in phase 2 (keep them):
 - Anyone in a group can edit or delete any expense; edits are logged before → after,
   deletes are soft with Undo. Anyone can toggle Simplify debts.
 - Nobody leaves or is removed with a non-zero balance. Currency locks after the
-  first expense or payment (conversion is phase 3).
+  first expense or payment (an expense in another currency converts instead).
 - Receipt photos come with hosting in phase 4 (button shows "soon").
 - Remind opens the share sheet with a ready message (copies on desktop); no email.
+
+Decisions made in phase 3 (keep them):
+- Live updates are Postgres LISTEN/NOTIFY + tRPC SSE, no hosted service. Events
+  carry ids only; clients refetch through normal queries. Presence is never
+  stored: it's an event renewed every 8s that expires after 15s.
+- Other currencies: the split is validated in the paid currency, then the total
+  is converted (`convertMinor`) and shares re-spread (`convertShares`). The
+  server picks the rate (Frankfurter, cached in `CurrencyRate`); an edit keeps
+  it unless currency or date changes. Home converts at today's rate with "≈".
+- Dark mode follows the system by default (next-themes); Account has Light /
+  Dark / System. Colours come only from tokens in `globals.css`, including the
+  member and group-tile palettes (CSS variables), so new UI must not hardcode hex.
 
 ## Project structure
 
@@ -92,11 +104,14 @@ src/
     (app)/              Signed-in pages (share the app shell layout)
     api/                Route handlers (auth, trpc)
   features/<feature>/   Everything for one feature: its components and client
-                        hooks. auth, groups, invites, expenses, balances,
-                        payments, activity. One component per file.
+                        hooks. auth, account, groups, invites, expenses,
+                        balances, payments, activity, live. One component
+                        per file.
   components/           Shared building blocks used by 2+ features
     ui/                 shadcn/ui primitives (generated; lightly themed)
-    shell/              App chrome: sidebar, bottom tabs, page header
+    shell/              App chrome: sidebar, bottom tabs, offline notice;
+                        page-layout (PageBody, PageTitle: safe in client
+                        components) and page-header (server-only mobile bar)
   hooks/                Shared React hooks
   lib/                  Pure TypeScript shared by client and server (no DB,
                         no React): money/, categories, activity snapshots,
@@ -105,7 +120,8 @@ src/
     api/                tRPC: context, procedures, routers/<feature>.ts
     services/           Business rules + database access, one file per feature.
                         Routers and server components call these; nothing
-                        else talks to Prisma directly.
+                        else talks to Prisma directly. rates.ts: Frankfurter
+    realtime/           LISTEN/NOTIFY bus (publish inside transactions)
     auth.ts, db.ts, session.ts
   trpc/                 tRPC client wiring (React provider, server caller)
   generated/            Prisma client (gitignored, `prisma generate`)
@@ -152,6 +168,12 @@ Notes:
   `logActivity` publishes inside the transaction. LISTEN needs a direct connection:
   set `DATABASE_URL_UNPOOLED` if `DATABASE_URL` goes through a pooler (Neon's
   pooled URL).
+- Integration tests that import the tRPC router must `vi.mock` `server/session`
+  (Auth.js needs the Next runtime); pass the user to `createCaller` directly.
+- e2e reuses a server already on port 3100 locally. After a rebuild, stop any old
+  `next start` there or the tests run against stale code.
+- Every app page has two `role="status"` regions (the offline notice, plus the
+  page's own); scope status locators in tests (`.filter({ hasText })`).
 - Prisma is pinned to **7.10.1** (the `latest` tag points at an 8.0 RC with a new
   architecture). The client is generated to `src/generated/prisma` on install.
 

@@ -1,11 +1,11 @@
 # Hatian
 
 Split shared expenses with friends, housemates and trip groups. Four split
-modes, balances that always add up, and settle-up suggestions with the fewest
-payments.
+modes, balances that always add up, settle-up suggestions with the fewest
+payments, and live updates as your friends add expenses.
 
-> Work in progress: phases 1 (foundation) and 2 (core money) are done.
-> Real-time updates, multi-currency and dark mode are next. Planning docs are in
+> Work in progress: phases 1–3 (foundation, core money, real-time and polish)
+> are done. Next: the hosted demo and a Lighthouse pass. Planning docs are in
 > `docs/`, screen designs in `design/`.
 
 ## What it does
@@ -19,7 +19,13 @@ payments.
   or one per pair), Remind via the phone's share sheet, and recording full or
   partial payments by Cash, GCash, Maya or bank.
 - **Activity** for each group and across groups, with filters.
-- **Export CSV** per group, with each person's share.
+- **Live**: balances, lists and activity update as soon as someone else saves,
+  and "Bea is adding an expense…" shows while a friend has the form open.
+- **Other currencies**: pay in dollars on a peso trip; the form shows
+  "≈ ₱6,369.50 · 1 USD = ₱63.695" and the expense keeps its original amount.
+- **Export CSV** per group, with each person's share, original currency and rate.
+- **Dark mode** (light, dark or follow the device), an offline notice, and
+  errors that keep the app usable around them.
 
 ## Stack
 
@@ -64,6 +70,14 @@ All amounts are integers in minor units (centavos). The rules live in
 - **Settle up**: with "Simplify debts" on, a greedy biggest-debtor →
   biggest-creditor match with a stable order (the Siargao sample needs 4
   payments instead of 10). Off, debts are netted per pair only.
+- **Other currencies** (`convert.ts`): the split is checked in the currency it
+  was paid in, the total is converted at that day's rate with exact integer
+  maths (rounded half up), and the shares are re-spread over the converted
+  total by largest remainder, so they still add up to the centavo. Rates come
+  from [Frankfurter](https://frankfurter.dev) (ECB reference rates) and are
+  cached per currency pair and day; an edit keeps the expense's rate unless
+  its currency or date changes. Home converts other-currency groups at today's
+  rate and marks the total "≈".
 
 ## Design decisions
 
@@ -78,16 +92,25 @@ All amounts are integers in minor units (centavos). The rules live in
   ids of other people's groups don't leak.
 - **Invite tokens are 144 random bits** (Prisma's default `cuid()` isn't
   meant to be unguessable).
+- **Live updates use Postgres itself**: `pg_notify` runs inside the same
+  transaction as the change, so an update is announced only if it commits.
+  Each server keeps one `LISTEN` connection and streams events to browsers
+  over a tRPC subscription (server-sent events). Events carry ids only; the
+  browser refetches through the normal, authorised queries. No extra hosted
+  service, at the cost of one direct database connection per server.
 
 ## Tests
 
 - `pnpm test`: unit tests for the money maths, split editor state, activity
   wording, CSV and dates (pure code, no database).
 - `pnpm test:integration`: the service rules against real Postgres (access,
-  splits, removing members with a balance, deleting groups, claiming invites).
+  splits, removing members with a balance, deleting groups, claiming invites,
+  currency conversion and the rate cache, live events reaching only members
+  and only after commit).
 - `pnpm e2e`: Playwright flows at phone and desktop sizes (create a group and
-  split, payments with undo, edit and delete with undo, invite and claim) plus
-  an axe accessibility scan of every screen.
+  split, payments with undo, edit and delete with undo, invite and claim, an
+  expense in another currency, two browsers seeing each other live) plus an
+  axe accessibility scan of every screen in light and dark mode.
 
 ## Scripts
 
